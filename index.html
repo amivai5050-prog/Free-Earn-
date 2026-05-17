@@ -1,0 +1,2547 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Free Earn - Earn Coins Daily</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Exo+2:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-primary: #0a0a1a;
+  --bg-secondary: #0f0f2e;
+  --bg-card: rgba(255,255,255,0.04);
+  --bg-card-hover: rgba(255,255,255,0.08);
+  --neon-gold: #ffd700;
+  --neon-orange: #ff6b00;
+  --neon-pink: #ff00aa;
+  --neon-cyan: #00e5ff;
+  --neon-green: #00ff88;
+  --neon-purple: #a855f7;
+  --gradient-main: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-gold: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+  --gradient-neon: linear-gradient(135deg, #00e5ff, #a855f7, #ff00aa);
+  --glass: rgba(255,255,255,0.05);
+  --glass-border: rgba(255,255,255,0.1);
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255,255,255,0.7);
+  --text-muted: rgba(255,255,255,0.4);
+  --nav-height: 72px;
+  --header-height: 64px;
+  --radius: 16px;
+  --radius-lg: 24px;
+  --shadow-neon: 0 0 20px rgba(0,229,255,0.3);
+  --shadow-gold: 0 0 20px rgba(255,215,0,0.4);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+html, body {
+  height:100%; overflow:hidden;
+  background: var(--bg-primary);
+  font-family: 'Exo 2', sans-serif;
+  color: var(--text-primary);
+  user-select: none;
+}
+
+/* ===== ANIMATED BACKGROUND ===== */
+#bg-canvas {
+  position: fixed; inset:0; z-index:0;
+  pointer-events:none;
+}
+
+/* ===== LAYOUT ===== */
+#app {
+  position: relative; z-index:1;
+  height:100vh; display:flex; flex-direction:column;
+  max-width: 480px; margin:0 auto;
+}
+
+/* ===== HEADER ===== */
+#header {
+  height: var(--header-height);
+  background: rgba(10,10,26,0.9);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--glass-border);
+  display: flex; align-items:center; justify-content:space-between;
+  padding: 0 16px;
+  flex-shrink:0;
+  position:relative; z-index:10;
+}
+
+.hdr-left { display:flex; align-items:center; gap:10px; }
+.avatar-btn {
+  width:40px; height:40px; border-radius:50%;
+  background: var(--gradient-neon);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; font-size:18px;
+  box-shadow: 0 0 15px rgba(168,85,247,0.5);
+  transition: transform 0.2s, box-shadow 0.2s;
+  border:2px solid rgba(255,255,255,0.2);
+  overflow:hidden; position:relative;
+  flex-shrink:0;
+}
+.avatar-btn:active { transform:scale(0.92); }
+.avatar-btn img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+
+.vip-badge {
+  font-size:9px; font-weight:700;
+  padding:2px 6px; border-radius:20px;
+  background: var(--gradient-gold);
+  color: #000;
+  letter-spacing:0.5px;
+}
+
+.hdr-center {
+  position:absolute; left:50%; transform:translateX(-50%);
+  display:flex; flex-direction:column; align-items:center;
+}
+.coin-display {
+  display:flex; align-items:center; gap:6px;
+}
+.coin-icon { font-size:22px; filter:drop-shadow(0 0 8px #ffd700); }
+.coin-value {
+  font-family:'Rajdhani', sans-serif;
+  font-size:22px; font-weight:700;
+  background: var(--gradient-gold);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  letter-spacing:1px;
+}
+.coin-label { font-size:9px; color:var(--text-muted); letter-spacing:1px; text-transform:uppercase; }
+
+.wallet-btn {
+  background: var(--glass);
+  border:1px solid var(--glass-border);
+  color: var(--neon-cyan);
+  padding:8px 14px; border-radius:20px;
+  font-size:12px; font-weight:600;
+  cursor:pointer; display:flex; align-items:center; gap:5px;
+  transition:all 0.2s;
+}
+.wallet-btn:active { transform:scale(0.95); background:rgba(0,229,255,0.1); }
+
+/* ===== MAIN CONTENT ===== */
+#main {
+  flex:1; overflow-y:auto; overflow-x:hidden;
+  padding-bottom: calc(var(--nav-height) + 16px);
+  scroll-behavior:smooth;
+  -webkit-overflow-scrolling:touch;
+}
+#main::-webkit-scrollbar { display:none; }
+
+/* ===== PAGES ===== */
+.page { display:none; animation: fadeSlide 0.3s ease; }
+.page.active { display:block; }
+
+@keyframes fadeSlide {
+  from { opacity:0; transform:translateY(12px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+/* ===== BANNER AD ===== */
+.banner-ad {
+  margin:12px 14px;
+  min-height:60px; border-radius:12px;
+  background: linear-gradient(90deg, rgba(168,85,247,0.2), rgba(0,229,255,0.2));
+  border:1px solid rgba(168,85,247,0.3);
+  display:flex; align-items:center; justify-content:center;
+  gap:10px; font-size:12px; color:var(--text-secondary);
+  position:relative; overflow:hidden;
+}
+.banner-ad::before {
+  content:''; position:absolute; inset:0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+  animation: shimmer 2s infinite;
+  z-index: 1;
+}
+@keyframes shimmer {
+  from { transform:translateX(-100%); }
+  to { transform:translateX(100%); }
+}
+.banner-label {
+  position:absolute; top:4px; right:8px;
+  font-size:8px; color:var(--text-muted); letter-spacing:1px;
+}
+
+/* ===== SECTION CARDS ===== */
+.section-card {
+  margin:12px 14px;
+  background: var(--bg-card);
+  border:1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  overflow:hidden;
+  backdrop-filter:blur(10px);
+}
+.section-title {
+  padding:14px 16px 8px;
+  font-size:13px; font-weight:700;
+  color:var(--text-muted); letter-spacing:2px; text-transform:uppercase;
+  display:flex; align-items:center; gap:8px;
+}
+.section-title .dot {
+  width:6px; height:6px; border-radius:50%;
+  background: var(--neon-cyan);
+  box-shadow: 0 0 8px var(--neon-cyan);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50% { opacity:0.5; transform:scale(0.8); }
+}
+
+/* ===== SPIN WHEEL ===== */
+#wheel-container {
+  padding:16px;
+  display:flex; flex-direction:column; align-items:center; gap:16px;
+}
+#wheel-wrap {
+  position:relative; width:260px; height:260px;
+}
+#wheel-canvas {
+  border-radius:50%;
+  box-shadow: 0 0 40px rgba(168,85,247,0.4), 0 0 80px rgba(0,229,255,0.2);
+  transition: box-shadow 0.3s;
+}
+#wheel-wrap.spinning #wheel-canvas {
+  box-shadow: 0 0 60px rgba(255,215,0,0.6), 0 0 100px rgba(168,85,247,0.4);
+}
+#wheel-pointer {
+  position:absolute; top:-10px; left:50%; transform:translateX(-50%);
+  width:0; height:0;
+  border-left:12px solid transparent;
+  border-right:12px solid transparent;
+  border-top:24px solid var(--neon-gold);
+  filter: drop-shadow(0 0 8px var(--neon-gold));
+  z-index:5;
+}
+#wheel-center {
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  width:48px; height:48px; border-radius:50%;
+  background: linear-gradient(135deg, #1a1a3e, #0a0a1a);
+  border:3px solid var(--neon-gold);
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; z-index:6;
+  box-shadow: 0 0 20px rgba(255,215,0,0.5);
+}
+
+.spin-info {
+  display:flex; gap:20px; text-align:center;
+}
+.spin-stat { display:flex; flex-direction:column; gap:2px; }
+.spin-stat-val {
+  font-family:'Rajdhani',sans-serif;
+  font-size:18px; font-weight:700;
+  color:var(--neon-cyan);
+}
+.spin-stat-lbl { font-size:10px; color:var(--text-muted); }
+
+#spin-btn {
+  width:100%; max-width:220px;
+  height:52px; border-radius:26px;
+  background: linear-gradient(135deg, #a855f7, #00e5ff);
+  border:none; color:#fff;
+  font-family:'Rajdhani',sans-serif;
+  font-size:18px; font-weight:700; letter-spacing:2px;
+  cursor:pointer; position:relative; overflow:hidden;
+  box-shadow: 0 0 25px rgba(168,85,247,0.5);
+  transition: all 0.2s;
+}
+#spin-btn::before {
+  content:''; position:absolute; inset:0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transform:translateX(-100%);
+  transition:transform 0.5s;
+}
+#spin-btn:hover::before { transform:translateX(100%); }
+#spin-btn:active { transform:scale(0.96); }
+#spin-btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+
+.spins-left-bar {
+  width:100%; padding:0 16px 16px;
+}
+.spins-left-label {
+  display:flex; justify-content:space-between;
+  font-size:11px; color:var(--text-muted); margin-bottom:6px;
+}
+.progress-track {
+  height:6px; border-radius:3px;
+  background: rgba(255,255,255,0.1);
+  overflow:hidden;
+}
+.progress-fill {
+  height:100%; border-radius:3px;
+  background: linear-gradient(90deg, #a855f7, #00e5ff);
+  transition: width 0.5s ease;
+  box-shadow: 0 0 8px rgba(0,229,255,0.5);
+}
+
+/* ===== AUTO SPIN ===== */
+.auto-spin-card {
+  margin:12px 14px;
+  background: linear-gradient(135deg, rgba(168,85,247,0.1), rgba(0,229,255,0.05));
+  border:1px solid rgba(168,85,247,0.3);
+  border-radius: var(--radius-lg);
+  padding:16px;
+}
+.auto-spin-title {
+  font-size:14px; font-weight:700;
+  color:var(--neon-purple); margin-bottom:12px;
+  display:flex; align-items:center; gap:8px;
+}
+.auto-spin-stats {
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap:8px; margin-bottom:14px;
+}
+.auto-stat {
+  background:rgba(0,0,0,0.3); border-radius:10px;
+  padding:8px; text-align:center;
+}
+.auto-stat-val {
+  font-family:'Rajdhani',sans-serif;
+  font-size:16px; font-weight:700;
+  color:var(--neon-gold);
+}
+.auto-stat-lbl { font-size:9px; color:var(--text-muted); }
+.auto-spin-btns {
+  display:flex; gap:8px;
+}
+.auto-btn {
+  flex:1; height:40px; border-radius:20px;
+  border:none; cursor:pointer;
+  font-family:'Exo 2',sans-serif;
+  font-size:12px; font-weight:700;
+  transition:all 0.2s;
+}
+.auto-btn:active { transform:scale(0.95); }
+.btn-start { background:linear-gradient(135deg,#00ff88,#00e5ff); color:#000; }
+.btn-pause { background:linear-gradient(135deg,#ffd700,#ff6b00); color:#000; }
+.btn-stop  { background:rgba(255,0,100,0.3); border:1px solid rgba(255,0,100,0.5); color:#ff6b6b; }
+
+/* ===== DAILY REWARD ===== */
+.daily-grid {
+  display:grid; grid-template-columns:repeat(7,1fr);
+  gap:6px; padding:14px 14px 6px;
+}
+.day-box {
+  aspect-ratio:1; border-radius:10px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:2px; cursor:pointer; transition:all 0.2s; position:relative;
+}
+.day-box.claimed {
+  background:rgba(0,255,136,0.15);
+  border-color:rgba(0,255,136,0.4);
+}
+.day-box.active {
+  background:linear-gradient(135deg,rgba(168,85,247,0.3),rgba(0,229,255,0.2));
+  border-color:var(--neon-cyan);
+  box-shadow:0 0 12px rgba(0,229,255,0.3);
+}
+.day-box.locked { opacity:0.4; }
+.day-num { font-size:8px; color:var(--text-muted); }
+.day-reward { font-size:9px; font-weight:700; color:var(--neon-gold); }
+.day-icon { font-size:14px; }
+.day-check {
+  position:absolute; top:-4px; right:-4px;
+  width:14px; height:14px; border-radius:50%;
+  background:var(--neon-green); color:#000;
+  font-size:8px; display:flex; align-items:center; justify-content:center;
+  font-weight:700;
+}
+
+.daily-claim-btn {
+  display:block; width:calc(100% - 28px);
+  margin:10px 14px 14px;
+  height:46px; border-radius:23px;
+  background:linear-gradient(135deg,#ffd700,#ff6b00);
+  border:none; color:#000;
+  font-family:'Rajdhani',sans-serif;
+  font-size:16px; font-weight:700; letter-spacing:1px;
+  cursor:pointer; transition:all 0.2s;
+  box-shadow:0 0 20px rgba(255,215,0,0.4);
+}
+.daily-claim-btn:active { transform:scale(0.97); }
+.daily-claim-btn:disabled { opacity:0.5; cursor:not-allowed; }
+
+/* ===== TASK PAGE ===== */
+.task-card {
+  margin:8px 14px;
+  background:var(--bg-card);
+  border:1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding:14px;
+  display:flex; align-items:center; gap:12px;
+  transition:all 0.2s;
+}
+.task-card:active { background:var(--bg-card-hover); transform:scale(0.99); }
+.task-icon {
+  width:46px; height:46px; border-radius:12px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; flex-shrink:0;
+}
+.task-info { flex:1; min-width:0; }
+.task-name { font-size:13px; font-weight:600; margin-bottom:3px; }
+.task-meta { display:flex; align-items:center; gap:8px; }
+.task-reward {
+  font-size:11px; font-weight:700;
+  color:var(--neon-gold);
+}
+.task-cd { font-size:10px; color:var(--text-muted); }
+.task-bar { height:3px; border-radius:2px; background:rgba(255,255,255,0.1); margin-top:6px; }
+.task-bar-fill { height:100%; border-radius:2px; background:linear-gradient(90deg,#a855f7,#00e5ff); transition:width 0.5s; }
+.task-btn {
+  padding:8px 16px; border-radius:20px;
+  background:linear-gradient(135deg,#a855f7,#00e5ff);
+  border:none; color:#fff;
+  font-size:11px; font-weight:700;
+  cursor:pointer; flex-shrink:0;
+  transition:all 0.2s;
+}
+.task-btn:active { transform:scale(0.95); }
+.task-btn.done {
+  background:rgba(0,255,136,0.2);
+  color:var(--neon-green);
+  border:1px solid rgba(0,255,136,0.3);
+}
+.task-btn:disabled { opacity:0.5; cursor:not-allowed; }
+
+/* ===== REFERRAL PAGE ===== */
+.ref-stats {
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap:10px; padding:14px;
+}
+.ref-stat-box {
+  background:rgba(0,0,0,0.3); border-radius:12px;
+  padding:12px; text-align:center;
+  border:1px solid rgba(255,255,255,0.07);
+}
+.ref-stat-val {
+  font-family:'Rajdhani',sans-serif;
+  font-size:22px; font-weight:700;
+  background: var(--gradient-gold);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+}
+.ref-stat-lbl { font-size:9px; color:var(--text-muted); margin-top:2px; }
+
+.ref-link-box {
+  margin:0 14px 14px;
+  background:rgba(0,0,0,0.4);
+  border:1px solid rgba(0,229,255,0.3);
+  border-radius:12px; padding:12px;
+}
+.ref-link-label { font-size:10px; color:var(--text-muted); margin-bottom:6px; }
+.ref-link-row { display:flex; gap:8px; align-items:center; }
+.ref-link-text {
+  flex:1; font-size:11px; color:var(--neon-cyan);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.copy-btn {
+  padding:7px 14px; border-radius:18px;
+  background:linear-gradient(135deg,#a855f7,#00e5ff);
+  border:none; color:#fff;
+  font-size:11px; font-weight:700; cursor:pointer;
+  flex-shrink:0; transition:all 0.2s;
+}
+.copy-btn:active { transform:scale(0.95); }
+
+.share-btns { display:flex; gap:8px; padding:0 14px 14px; }
+.share-btn {
+  flex:1; height:42px; border-radius:21px;
+  border:none; cursor:pointer;
+  font-family:'Exo 2',sans-serif;
+  font-size:12px; font-weight:700; transition:all 0.2s;
+}
+.share-btn:active { transform:scale(0.96); }
+.btn-tg { background:linear-gradient(135deg,#0088cc,#00c3f3); color:#fff; }
+.btn-qr { background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; }
+
+.milestone-list { padding:0 14px 14px; }
+.milestone-item {
+  display:flex; align-items:center; gap:12px;
+  padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.milestone-item:last-child { border-bottom:none; }
+.milestone-icon { font-size:24px; }
+.milestone-info { flex:1; }
+.milestone-title { font-size:12px; font-weight:600; }
+.milestone-sub { font-size:10px; color:var(--text-muted); }
+.milestone-reward { font-size:12px; font-weight:700; color:var(--neon-gold); }
+.milestone-badge {
+  padding:3px 8px; border-radius:10px;
+  background:rgba(0,255,136,0.2); color:var(--neon-green);
+  font-size:9px; font-weight:700;
+}
+
+/* ===== LEADERBOARD ===== */
+.lb-item {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 14px; border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.lb-rank {
+  font-family:'Rajdhani',sans-serif;
+  font-size:16px; font-weight:700; width:24px; text-align:center;
+}
+.lb-rank.gold { color:var(--neon-gold); }
+.lb-rank.silver { color:#c0c0c0; }
+.lb-rank.bronze { color:#cd7f32; }
+.lb-avatar {
+  width:34px; height:34px; border-radius:50%;
+  background:var(--gradient-neon); display:flex; align-items:center; justify-content:center;
+  font-size:16px;
+}
+.lb-name { flex:1; font-size:12px; font-weight:600; }
+.lb-coins { font-family:'Rajdhani',sans-serif; font-size:14px; font-weight:700; color:var(--neon-gold); }
+
+/* ===== WALLET PAGE ===== */
+.wallet-balance-card {
+  margin:14px;
+  background:linear-gradient(135deg,rgba(168,85,247,0.2),rgba(0,229,255,0.1));
+  border:1px solid rgba(168,85,247,0.4);
+  border-radius: var(--radius-lg);
+  padding:20px; text-align:center;
+  position:relative; overflow:hidden;
+}
+.wallet-balance-card::before {
+  content:''; position:absolute; top:-50%; left:-50%;
+  width:200%; height:200%;
+  background:radial-gradient(circle, rgba(168,85,247,0.1) 0%, transparent 70%);
+  animation:rotate 8s linear infinite;
+}
+@keyframes rotate { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+.wallet-label { font-size:11px; color:var(--text-muted); letter-spacing:2px; margin-bottom:8px; }
+.wallet-amount {
+  font-family:'Rajdhani',sans-serif;
+  font-size:40px; font-weight:700;
+  background:var(--gradient-gold);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+}
+.wallet-sub { font-size:12px; color:var(--text-muted); margin-top:4px; }
+
+.wallet-grid {
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap:8px; margin:0 14px 14px;
+}
+.wallet-stat {
+  background:var(--bg-card); border:1px solid var(--glass-border);
+  border-radius:12px; padding:12px; text-align:center;
+}
+.wallet-stat-val {
+  font-family:'Rajdhani',sans-serif;
+  font-size:16px; font-weight:700;
+}
+.wallet-stat-lbl { font-size:9px; color:var(--text-muted); margin-top:2px; }
+
+.withdraw-form {
+  margin:0 14px;
+  background:var(--bg-card); border:1px solid var(--glass-border);
+  border-radius: var(--radius-lg); padding:16px;
+}
+.withdraw-title { font-size:14px; font-weight:700; margin-bottom:14px; }
+.method-tabs { display:flex; gap:6px; margin-bottom:14px; }
+.method-tab {
+  flex:1; padding:8px; border-radius:10px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);
+  color:var(--text-muted); font-size:11px; font-weight:600;
+  cursor:pointer; text-align:center; transition:all 0.2s;
+}
+.method-tab.active {
+  background:rgba(168,85,247,0.2);
+  border-color:rgba(168,85,247,0.5);
+  color:var(--neon-purple);
+}
+.input-group { margin-bottom:12px; }
+.input-label { font-size:11px; color:var(--text-muted); margin-bottom:6px; }
+.input-field {
+  width:100%; padding:12px 14px; border-radius:10px;
+  background:rgba(0,0,0,0.4);
+  border:1px solid rgba(255,255,255,0.1);
+  color:#fff; font-size:13px;
+  outline:none; transition:border-color 0.2s;
+  font-family:'Exo 2',sans-serif;
+}
+.input-field:focus { border-color:var(--neon-purple); }
+
+.withdraw-btn {
+  width:100%; height:48px; border-radius:24px;
+  background:linear-gradient(135deg,#a855f7,#00e5ff);
+  border:none; color:#fff;
+  font-family:'Rajdhani',sans-serif;
+  font-size:16px; font-weight:700; letter-spacing:1px;
+  cursor:pointer; transition:all 0.2s;
+  box-shadow:0 0 20px rgba(168,85,247,0.4);
+}
+.withdraw-btn:active { transform:scale(0.98); }
+
+.exchange-card {
+  margin:14px; background:var(--bg-card);
+  border:1px solid var(--glass-border);
+  border-radius: var(--radius-lg); padding:16px;
+}
+.exchange-title { font-size:14px; font-weight:700; margin-bottom:14px; }
+.exchange-row {
+  display:flex; align-items:center; gap:10px;
+  margin-bottom:12px;
+}
+.exchange-box {
+  flex:1; background:rgba(0,0,0,0.4);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:10px; padding:12px;
+}
+.exchange-label { font-size:9px; color:var(--text-muted); margin-bottom:4px; }
+.exchange-val {
+  font-family:'Rajdhani',sans-serif;
+  font-size:20px; font-weight:700; color:var(--neon-gold);
+}
+.exchange-arrow { font-size:20px; color:var(--text-muted); }
+.exchange-rate { font-size:10px; color:var(--text-muted); text-align:center; margin-bottom:12px; }
+.exchange-btn {
+  width:100%; height:44px; border-radius:22px;
+  background:linear-gradient(135deg,#ffd700,#ff6b00);
+  border:none; color:#000;
+  font-family:'Rajdhani',sans-serif;
+  font-size:15px; font-weight:700;
+  cursor:pointer; transition:all 0.2s;
+}
+
+/* ===== ACHIEVEMENTS ===== */
+.achievements-grid {
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap:10px; padding:14px;
+}
+.ach-item {
+  background:var(--bg-card); border:1px solid var(--glass-border);
+  border-radius:12px; padding:12px; text-align:center;
+  transition:all 0.3s;
+}
+.ach-item.unlocked {
+  background:rgba(255,215,0,0.1);
+  border-color:rgba(255,215,0,0.3);
+  box-shadow:0 0 12px rgba(255,215,0,0.2);
+}
+.ach-icon { font-size:28px; margin-bottom:6px; }
+.ach-name { font-size:10px; font-weight:600; }
+.ach-desc { font-size:9px; color:var(--text-muted); margin-top:2px; }
+.ach-lock { font-size:16px; opacity:0.3; }
+
+/* ===== VIP LEVELS ===== */
+.vip-row {
+  display:flex; gap:6px; padding:14px; overflow-x:auto;
+}
+.vip-row::-webkit-scrollbar { display:none; }
+.vip-card {
+  flex-shrink:0; width:80px;
+  background:var(--bg-card); border:1px solid var(--glass-border);
+  border-radius:12px; padding:10px; text-align:center;
+}
+.vip-card.current {
+  background:rgba(255,215,0,0.15);
+  border-color:rgba(255,215,0,0.5);
+}
+.vip-emoji { font-size:24px; }
+.vip-name { font-size:10px; font-weight:700; margin-top:4px; }
+.vip-req { font-size:9px; color:var(--text-muted); }
+
+/* ===== BOTTOM NAV ===== */
+#bottom-nav {
+  height: var(--nav-height);
+  background: rgba(10,10,26,0.95);
+  backdrop-filter:blur(20px);
+  border-top:1px solid var(--glass-border);
+  display:flex; align-items:center;
+  flex-shrink:0; position:relative; z-index:10;
+  padding:0 4px;
+}
+.nav-btn {
+  flex:1; height:100%; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:4px;
+  cursor:pointer; transition:all 0.2s; border-radius:12px;
+  border:none; background:transparent;
+  padding:8px 4px;
+}
+.nav-icon {
+  font-size:22px; transition:all 0.3s;
+  filter:grayscale(1) opacity(0.5);
+}
+.nav-label {
+  font-size:10px; font-weight:600; letter-spacing:0.5px;
+  color:var(--text-muted); transition:all 0.2s;
+}
+.nav-btn.active .nav-icon {
+  filter:none; transform:scale(1.15) translateY(-2px);
+  filter:drop-shadow(0 0 6px var(--neon-cyan));
+}
+.nav-btn.active .nav-label { color:var(--neon-cyan); }
+.nav-indicator {
+  position:absolute; bottom:0; height:2px;
+  background:var(--gradient-neon); border-radius:1px;
+  transition:all 0.3s ease;
+}
+
+/* ===== MODALS ===== */
+.modal-overlay {
+  position:fixed; inset:0; z-index:100;
+  background:rgba(0,0,0,0.85);
+  backdrop-filter:blur(10px);
+  display:flex; align-items:center; justify-content:center;
+  padding:20px;
+  animation:fadeIn 0.2s ease;
+}
+.modal-overlay.hidden { display:none; }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+.modal-box {
+  width:100%; max-width:360px;
+  background:linear-gradient(135deg,#1a1a3e,#0f0f2e);
+  border:1px solid rgba(168,85,247,0.3);
+  border-radius: var(--radius-lg);
+  padding:24px;
+  animation:popIn 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+  max-height:90vh; overflow-y:auto;
+}
+.modal-box::-webkit-scrollbar { display:none; }
+@keyframes popIn {
+  from{opacity:0;transform:scale(0.85) translateY(20px)}
+  to{opacity:1;transform:scale(1) translateY(0)}
+}
+
+/* ===== AD MODAL ===== */
+.ad-modal {
+  position:fixed; inset:0; z-index:200;
+  background:#000;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+}
+.ad-modal.hidden { display:none; }
+.ad-label {
+  position:absolute; top:16px; left:16px;
+  font-size:10px; color:rgba(255,255,255,0.4);
+  letter-spacing:1px; text-transform:uppercase;
+}
+.ad-type {
+  position:absolute; top:16px; right:16px;
+  font-size:10px; color:rgba(255,255,255,0.4);
+}
+.ad-content {
+  width:100%; max-width:380px; padding:20px;
+  display:flex; flex-direction:column; align-items:center; gap:20px;
+}
+.ad-graphic {
+  width:200px; height:200px; border-radius:24px;
+  background:linear-gradient(135deg,#1a1a3e,#0f0f2e);
+  border:1px solid rgba(168,85,247,0.3);
+  display:flex; align-items:center; justify-content:center;
+  font-size:72px; position:relative; overflow:hidden;
+}
+.ad-graphic::before {
+  content:''; position:absolute; inset:0;
+  background: conic-gradient(from 0deg, transparent, rgba(168,85,247,0.2), transparent);
+  animation:rotate 3s linear infinite;
+}
+.ad-title { font-size:18px; font-weight:700; text-align:center; }
+.ad-sub { font-size:13px; color:var(--text-muted); text-align:center; }
+.ad-progress-bar {
+  width:100%; height:6px; border-radius:3px;
+  background:rgba(255,255,255,0.1);
+  overflow:hidden;
+}
+.ad-progress-fill {
+  height:100%; border-radius:3px;
+  background:linear-gradient(90deg,#a855f7,#00e5ff);
+  transition:width 0.1s linear;
+  box-shadow:0 0 10px rgba(0,229,255,0.5);
+}
+.ad-timer {
+  font-family:'Rajdhani',sans-serif;
+  font-size:28px; font-weight:700; color:var(--neon-cyan);
+}
+.ad-skip-btn {
+  padding:12px 32px; border-radius:24px;
+  background:linear-gradient(135deg,#a855f7,#00e5ff);
+  border:none; color:#fff;
+  font-family:'Rajdhani',sans-serif;
+  font-size:16px; font-weight:700;
+  cursor:pointer; transition:all 0.2s;
+  display:none;
+}
+.ad-skip-btn.visible { display:block; }
+.ad-skip-btn:active { transform:scale(0.96); }
+
+/* ===== RESULT POPUP ===== */
+.result-modal {
+  position:fixed; inset:0; z-index:150;
+  background:rgba(0,0,0,0.9);
+  display:flex; align-items:center; justify-content:center;
+}
+.result-modal.hidden { display:none; }
+.result-box {
+  background:linear-gradient(135deg,#1a1a3e,#0f0f2e);
+  border:1px solid rgba(255,215,0,0.4);
+  border-radius: var(--radius-lg); padding:28px;
+  text-align:center; width:280px;
+  animation:popIn 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+  box-shadow:0 0 40px rgba(255,215,0,0.2);
+}
+.result-emoji { font-size:60px; margin-bottom:12px; display:block; }
+.result-amount {
+  font-family:'Rajdhani',sans-serif;
+  font-size:48px; font-weight:700;
+  background:var(--gradient-gold);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+}
+.result-label { font-size:14px; color:var(--text-muted); margin-bottom:20px; }
+.claim-btn {
+  width:100%; height:48px; border-radius:24px;
+  background:linear-gradient(135deg,#ffd700,#ff6b00);
+  border:none; color:#000;
+  font-family:'Rajdhani',sans-serif;
+  font-size:18px; font-weight:700;
+  cursor:pointer; transition:all 0.2s;
+  box-shadow:0 0 20px rgba(255,215,0,0.4);
+}
+.claim-btn:active { transform:scale(0.97); }
+
+/* ===== PROFILE MODAL ===== */
+.profile-modal { max-width:340px; text-align:center; }
+.profile-avatar-lg {
+  width:72px; height:72px; border-radius:50%;
+  background:var(--gradient-neon);
+  margin:0 auto 12px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:32px; border:3px solid rgba(255,255,255,0.2);
+  box-shadow:0 0 20px rgba(168,85,247,0.4);
+  overflow:hidden;
+}
+.profile-avatar-lg img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+.profile-name { font-size:18px; font-weight:700; }
+.profile-username { font-size:13px; color:var(--text-muted); margin-bottom:16px; }
+.profile-stats {
+  display:grid; grid-template-columns:repeat(2,1fr);
+  gap:8px; text-align:left;
+}
+.profile-stat {
+  background:rgba(255,255,255,0.05); border-radius:10px;
+  padding:10px 12px;
+}
+.profile-stat-lbl { font-size:9px; color:var(--text-muted); }
+.profile-stat-val {
+  font-family:'Rajdhani',sans-serif;
+  font-size:16px; font-weight:700;
+  color:var(--neon-cyan);
+}
+.modal-close-btn {
+  width:100%; height:44px; border-radius:22px;
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.1);
+  color:#fff; font-size:14px; font-weight:600;
+  cursor:pointer; margin-top:16px; transition:all 0.2s;
+}
+.modal-close-btn:active { transform:scale(0.97); }
+
+/* ===== TOAST ===== */
+#toast-container {
+  position:fixed; top:80px; left:50%; transform:translateX(-50%);
+  z-index:300; display:flex; flex-direction:column; gap:8px; align-items:center;
+  pointer-events:none;
+}
+.toast {
+  padding:10px 20px; border-radius:20px;
+  background:rgba(0,0,0,0.9); border:1px solid rgba(255,255,255,0.1);
+  font-size:13px; font-weight:600;
+  animation:toastIn 0.3s ease, toastOut 0.3s ease 2.7s forwards;
+  backdrop-filter:blur(10px);
+  white-space:nowrap;
+}
+@keyframes toastIn { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+@keyframes toastOut { from{opacity:1} to{opacity:0;transform:translateY(-10px)} }
+.toast.success { border-color:rgba(0,255,136,0.4); color:var(--neon-green); }
+.toast.error { border-color:rgba(255,0,100,0.4); color:#ff6b6b; }
+.toast.info { border-color:rgba(0,229,255,0.4); color:var(--neon-cyan); }
+.toast.gold { border-color:rgba(255,215,0,0.4); color:var(--neon-gold); }
+
+/* ===== LUCKY BOX ===== */
+.lucky-box-float {
+  position:fixed; bottom:90px; right:16px; z-index:50;
+  width:56px; height:56px;
+  background:linear-gradient(135deg,#ffd700,#ff6b00);
+  border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-size:28px; cursor:pointer;
+  box-shadow:0 0 20px rgba(255,215,0,0.5);
+  animation:bounce 2s ease-in-out infinite;
+}
+@keyframes bounce {
+  0%,100% { transform:translateY(0) rotate(0deg); }
+  50% { transform:translateY(-8px) rotate(5deg); }
+}
+.lucky-box-float.hidden { display:none; }
+
+/* ===== NOTIFICATION BADGE ===== */
+.notif-badge {
+  position:absolute; top:-2px; right:-2px;
+  width:16px; height:16px; border-radius:50%;
+  background:#ff0055; font-size:8px; font-weight:700;
+  display:flex; align-items:center; justify-content:center;
+  color:#fff; border:2px solid var(--bg-primary);
+}
+
+/* ===== COINS ANIMATION ===== */
+.coin-fly {
+  position:fixed; font-size:20px; pointer-events:none; z-index:400;
+  animation:coinFly 1.2s ease-out forwards;
+}
+@keyframes coinFly {
+  0% { opacity:1; transform:translateY(0) scale(1); }
+  100% { opacity:0; transform:translateY(-80px) scale(1.4); }
+}
+
+/* ===== QR ===== */
+#qr-canvas { border-radius:12px; }
+
+/* ===== MYSTERY POPUP ===== */
+.mystery-pop {
+  position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(0);
+  z-index:250; background:linear-gradient(135deg,#1a1a3e,#0f0f2e);
+  border:2px solid var(--neon-purple); border-radius: var(--radius-lg);
+  padding:24px; text-align:center; width:240px;
+  transition:transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+  box-shadow:0 0 40px rgba(168,85,247,0.4);
+}
+.mystery-pop.show { transform:translate(-50%,-50%) scale(1); }
+
+/* ===== UTILS ===== */
+.hidden { display:none !important; }
+.flex-center { display:flex; align-items:center; justify-content:center; }
+.text-center { text-align:center; }
+.mb-8 { margin-bottom:8px; }
+.mb-14 { margin-bottom:14px; }
+.p14 { padding:14px; }
+.color-gold { color:var(--neon-gold); }
+.color-green { color:var(--neon-green); }
+.color-cyan { color:var(--neon-cyan); }
+.color-purple { color:var(--neon-purple); }
+.fw700 { font-weight:700; }
+.fs13 { font-size:13px; }
+.divider { height:1px; background:rgba(255,255,255,0.06); margin:0 14px; }
+
+/* ===== LOADING ===== */
+#loading-screen {
+  position:fixed; inset:0; z-index:500;
+  background:var(--bg-primary);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:20px;
+}
+.loading-logo { font-size:60px; animation:logoBounce 1s ease-in-out infinite; }
+@keyframes logoBounce {
+  0%,100%{transform:scale(1)} 50%{transform:scale(1.1)}
+}
+.loading-title {
+  font-family:'Rajdhani',sans-serif;
+  font-size:32px; font-weight:700;
+  background:var(--gradient-gold);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+}
+.loading-bar {
+  width:200px; height:4px; border-radius:2px;
+  background:rgba(255,255,255,0.1); overflow:hidden;
+}
+.loading-bar-fill {
+  height:100%; border-radius:2px;
+  background:linear-gradient(90deg,#a855f7,#00e5ff);
+  animation:loadBar 1.8s ease forwards;
+}
+@keyframes loadBar { from{width:0} to{width:100%} }
+.loading-sub { font-size:12px; color:var(--text-muted); }
+
+/* ===== COOLDOWN ===== */
+.cooldown-overlay {
+  position:absolute; inset:0; border-radius: var(--radius);
+  background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center;
+  font-size:11px; color:var(--neon-cyan); font-weight:600;
+}
+</style>
+</head>
+<body>
+
+<!-- Loading Screen -->
+<div id="loading-screen">
+  <div class="loading-logo">🪙</div>
+  <div class="loading-title">Free Earn</div>
+  <div class="loading-bar"><div class="loading-bar-fill"></div></div>
+  <div class="loading-sub">লোড হচ্ছে...</div>
+</div>
+
+<!-- Background Canvas -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+
+<!-- Lucky Box Float -->
+<div class="lucky-box-float hidden" id="lucky-box-btn" onclick="openLuckyBox()">🎁</div>
+
+<!-- Mystery Popup -->
+<div class="mystery-pop" id="mystery-pop">
+  <div style="font-size:48px; margin-bottom:10px;">🎊</div>
+  <div style="font-size:18px; font-weight:700; color:var(--neon-gold)" id="mystery-amount">+50 কয়েন!</div>
+  <div style="font-size:12px; color:var(--text-muted); margin:8px 0 16px">মিস্ট্রি রিওয়ার্ড!</div>
+  <button onclick="claimMystery()" class="claim-btn" style="font-size:14px; height:40px">ক্লেইম করুন 🎉</button>
+</div>
+
+<!-- Ad Modal -->
+<div class="ad-modal hidden" id="ad-modal">
+  <div class="ad-label">AD</div>
+  <div class="ad-type" id="ad-type-label">Adsterra-A</div>
+  <div class="ad-content">
+    <div class="ad-graphic">
+      <span id="ad-emoji">💎</span>
+    </div>
+    <div>
+      <div class="ad-title" id="ad-title">আকর্ষণীয় অফার!</div>
+      <div class="ad-sub" id="ad-sub">সেরা অফার উপভোগ করুন</div>
+    </div>
+    <div style="width:100%">
+      <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); margin-bottom:6px">
+        <span>লোড হচ্ছে...</span>
+        <span id="ad-timer-text">15s</span>
+      </div>
+      <div class="ad-progress-bar"><div class="ad-progress-fill" id="ad-progress"></div></div>
+    </div>
+    <div class="ad-timer" id="ad-timer">15</div>
+    <button class="ad-skip-btn" id="ad-skip-btn" onclick="skipAd()">বিজ্ঞাপন দেখা হয়েছে ✓</button>
+  </div>
+</div>
+
+<!-- Result Modal -->
+<div class="result-modal hidden" id="result-modal">
+  <div class="result-box">
+    <span class="result-emoji" id="result-emoji">🎉</span>
+    <div class="result-amount" id="result-amount">100</div>
+    <div class="result-label" id="result-label">কয়েন জিতেছেন!</div>
+    <button class="claim-btn" id="claim-btn" onclick="claimReward()">ক্লেইম করুন 🏆</button>
+  </div>
+</div>
+
+<!-- Profile Modal -->
+<div class="modal-overlay hidden" id="profile-modal-overlay">
+  <div class="modal-box profile-modal">
+    <div class="profile-avatar-lg" id="profile-avatar-lg">👤</div>
+    <div class="profile-name" id="profile-modal-name">User</div>
+    <div class="profile-username" id="profile-modal-username">@username</div>
+    <div class="profile-stats">
+      <div class="profile-stat">
+        <div class="profile-stat-lbl">ইউজার আইডি</div>
+        <div class="profile-stat-val" id="profile-uid">-</div>
+      </div>
+      <div class="profile-stat">
+        <div class="profile-stat-lbl">যোগদানের তারিখ</div>
+        <div class="profile-stat-val" id="profile-join">-</div>
+      </div>
+      <div class="profile-stat">
+        <div class="profile-stat-lbl">মোট আয়</div>
+        <div class="profile-stat-val" id="profile-total-earned">0</div>
+      </div>
+      <div class="profile-stat">
+        <div class="profile-stat-lbl">রেফারেল</div>
+        <div class="profile-stat-val" id="profile-ref-count">0</div>
+      </div>
+      <div class="profile-stat">
+        <div class="profile-stat-lbl">মোট স্পিন</div>
+        <div class="profile-stat-val" id="profile-spins">0</div>
+      </div>
+      <div class="profile-stat">
+        <div class="profile-stat-lbl">ভিআইপি লেভেল</div>
+        <div class="profile-stat-val" id="profile-vip">ব্রোঞ্জ</div>
+      </div>
+    </div>
+    <button class="modal-close-btn" onclick="closeProfileModal()">বন্ধ করুন</button>
+  </div>
+</div>
+
+<!-- Lucky Box Modal -->
+<div class="modal-overlay hidden" id="lucky-modal-overlay">
+  <div class="modal-box" style="text-align:center">
+    <div style="font-size:64px; margin-bottom:12px; animation:logoBounce 0.8s infinite">🎁</div>
+    <div style="font-size:20px; font-weight:700; margin-bottom:6px">লাকি বক্স!</div>
+    <div style="font-size:13px; color:var(--text-muted); margin-bottom:20px">র্যান্ডম রিওয়ার্ড খুলুন</div>
+    <button onclick="openLuckyReward()" class="claim-btn" style="font-size:16px">খুলুন! 🎊</button>
+    <button onclick="document.getElementById('lucky-modal-overlay').classList.add('hidden')" class="modal-close-btn">পরে করব</button>
+  </div>
+</div>
+
+<!-- QR Modal -->
+<div class="modal-overlay hidden" id="qr-modal-overlay">
+  <div class="modal-box" style="text-align:center">
+    <div style="font-size:18px; font-weight:700; margin-bottom:16px">রেফারেল QR কোড</div>
+    <canvas id="qr-canvas" width="200" height="200" style="margin:0 auto 16px; display:block; background:#fff; border-radius:12px; padding:8px;"></canvas>
+    <div style="font-size:11px; color:var(--text-muted); margin-bottom:16px">এই QR কোড স্ক্যান করে বন্ধুরা যোগ দিতে পারবে</div>
+    <button onclick="document.getElementById('qr-modal-overlay').classList.add('hidden')" class="modal-close-btn">বন্ধ করুন</button>
+  </div>
+</div>
+
+<!-- Main App -->
+<div id="app">
+  <!-- Header -->
+  <div id="header">
+    <div class="hdr-left">
+      <div class="avatar-btn" id="avatar-btn" onclick="openProfileModal()">
+        <span id="avatar-emoji">👤</span>
+        <div class="notif-badge hidden" id="notif-badge">1</div>
+      </div>
+      <div class="vip-badge" id="vip-badge-hdr">🥉 ব্রোঞ্জ</div>
+    </div>
+    <div class="hdr-center">
+      <div class="coin-display">
+        <span class="coin-icon">🪙</span>
+        <span class="coin-value" id="header-balance">0</span>
+      </div>
+      <span class="coin-label">কয়েন ব্যালেন্স</span>
+    </div>
+    <button class="wallet-btn" onclick="navigate('wallet')">
+      💰 ওয়ালেট
+    </button>
+  </div>
+
+  <!-- Main Content -->
+  <div id="main">
+
+    <!-- HOME PAGE -->
+    <div class="page" id="page-home">
+      <!-- Banner 1 -->
+      <div class="banner-ad" style="padding: 10px 0; overflow-x: auto;">
+        <span class="banner-label" style="z-index: 10;">বিজ্ঞাপন</span>
+        <div style="position: relative; z-index: 5; display: flex; justify-content: center;">
+          <script>
+            atOptions = {
+              'key' : '5fbba35c0da753aa09607ca216f86b0f',
+              'format' : 'iframe',
+              'height' : 90,
+              'width' : 728,
+              'params' : {}
+            };
+          </script>
+          <script src="https://www.highperformanceformat.com/5fbba35c0da753aa09607ca216f86b0f/invoke.js"></script>
+        </div>
+      </div>
+
+      <!-- Spin Wheel -->
+      <div class="section-card">
+        <div class="section-title">
+          <span class="dot"></span> স্পিন হুইল
+        </div>
+        <div id="wheel-container">
+          <div id="wheel-wrap">
+            <div id="wheel-pointer"></div>
+            <canvas id="wheel-canvas" width="260" height="260"></canvas>
+            <div id="wheel-center">🪙</div>
+          </div>
+          <div class="spin-info">
+            <div class="spin-stat">
+              <span class="spin-stat-val" id="spins-left-val">21</span>
+              <span class="spin-stat-lbl">অবশিষ্ট স্পিন</span>
+            </div>
+            <div class="spin-stat">
+              <span class="spin-stat-val" id="cooldown-timer">—</span>
+              <span class="spin-stat-lbl">কুলডাউন</span>
+            </div>
+            <div class="spin-stat">
+              <span class="spin-stat-val" id="session-wins">0</span>
+              <span class="spin-stat-lbl">সেশন আয়</span>
+            </div>
+          </div>
+          <button id="spin-btn" onclick="doSpin()">🎰 SPIN</button>
+        </div>
+        <div class="spins-left-bar">
+          <div class="spins-left-label">
+            <span>স্পিন প্রগ্রেস</span>
+            <span id="spins-progress-text">0/21</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="spin-progress-fill" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Auto Spin -->
+      <div class="auto-spin-card">
+        <div class="auto-spin-title">⚡ অটো স্পিন সিস্টেম</div>
+        <div class="auto-spin-stats">
+          <div class="auto-stat">
+            <div class="auto-stat-val" id="auto-total-spins">0</div>
+            <div class="auto-stat-lbl">মোট স্পিন</div>
+          </div>
+          <div class="auto-stat">
+            <div class="auto-stat-val" id="auto-session-earn">0</div>
+            <div class="auto-stat-lbl">সেশন আয়</div>
+          </div>
+          <div class="auto-stat">
+            <div class="auto-stat-val" id="auto-status-text" style="font-size:11px; color:var(--text-muted)">বন্ধ</div>
+            <div class="auto-stat-lbl">স্ট্যাটাস</div>
+          </div>
+        </div>
+        <div class="auto-spin-btns">
+          <button class="auto-btn btn-start" id="auto-start-btn" onclick="startAutoSpin()">▶ স্টার্ট</button>
+          <button class="auto-btn btn-pause" id="auto-pause-btn" onclick="pauseAutoSpin()" disabled>⏸ পজ</button>
+          <button class="auto-btn btn-stop"  id="auto-stop-btn"  onclick="stopAutoSpin()"  disabled>⏹ স্টপ</button>
+        </div>
+      </div>
+
+      <!-- Daily Reward -->
+      <div class="section-card">
+        <div class="section-title"><span class="dot" style="background:var(--neon-gold); box-shadow:0 0 8px var(--neon-gold)"></span> ডেইলি রিওয়ার্ড</div>
+        <div class="daily-grid" id="daily-grid"></div>
+        <button class="daily-claim-btn" id="daily-claim-btn" onclick="claimDailyReward()">আজকের রিওয়ার্ড ক্লেইম করুন 🎁</button>
+      </div>
+
+      <!-- Banner 2 -->
+      <div class="banner-ad" style="padding: 10px 0;">
+        <span class="banner-label" style="z-index: 10;">বিজ্ঞাপন</span>
+        <div style="position: relative; z-index: 5;">
+          <script>
+            atOptions = {
+              'key' : 'dd4ae91deaf5f67703a015f13641e79e',
+              'format' : 'iframe',
+              'height' : 250,
+              'width' : 300,
+              'params' : {}
+            };
+          </script>
+          <script src="https://www.highperformanceformat.com/dd4ae91deaf5f67703a015f13641e79e/invoke.js"></script>
+        </div>
+      </div>
+
+      <!-- Achievements -->
+      <div class="section-card">
+        <div class="section-title"><span class="dot" style="background:var(--neon-gold); box-shadow:0 0 8px var(--neon-gold)"></span> অ্যাচিভমেন্ট</div>
+        <div class="achievements-grid" id="achievements-grid"></div>
+      </div>
+
+      <!-- VIP -->
+      <div class="section-card" style="margin-bottom:0">
+        <div class="section-title"><span class="dot" style="background:var(--neon-purple); box-shadow:0 0 8px var(--neon-purple)"></span> ভিআইপি লেভেল</div>
+        <div class="vip-row" id="vip-row"></div>
+        <div style="padding:0 14px 14px; font-size:11px; color:var(--text-muted); text-align:center">
+          উচ্চ লেভেলে বোনাস রিওয়ার্ড পাওয়া যায় 🏆
+        </div>
+      </div>
+    </div>
+
+    <!-- TASKS PAGE -->
+    <div class="page" id="page-tasks">
+      <div class="banner-ad" style="padding: 10px 0; overflow-x: auto;">
+        <span class="banner-label" style="z-index: 10;">বিজ্ঞাপন</span>
+        <div style="position: relative; z-index: 5; display: flex; justify-content: center;">
+          <script>
+            atOptions = {
+              'key' : '5fbba35c0da753aa09607ca216f86b0f',
+              'format' : 'iframe',
+              'height' : 90,
+              'width' : 728,
+              'params' : {}
+            };
+          </script>
+          <script src="https://www.highperformanceformat.com/5fbba35c0da753aa09607ca216f86b0f/invoke.js"></script>
+        </div>
+      </div>
+
+      <div class="section-card" style="padding-bottom:8px">
+        <div class="section-title"><span class="dot"></span> টাস্ক লিস্ট</div>
+        <div style="padding:0 14px 6px; font-size:11px; color:var(--text-muted); display:flex; justify-content:space-between">
+          <span id="tasks-done-count">০/২০ টাস্ক সম্পন্ন</span>
+          <span id="tasks-cooldown-txt">পরবর্তী রিসেট: ৪ঘ</span>
+        </div>
+        <div style="height:3px; background:rgba(255,255,255,0.05); margin:0 14px 12px; border-radius:2px; overflow:hidden">
+          <div id="tasks-global-progress" style="height:100%; background:linear-gradient(90deg,#a855f7,#00e5ff); border-radius:2px; width:0%; transition:width 0.5s"></div>
+        </div>
+        <div id="task-list"></div>
+      </div>
+
+      <div class="banner-ad" style="margin-top:12px; padding: 10px 0;">
+        <span class="banner-label" style="z-index: 10;">বিজ্ঞাপন</span>
+        <div style="position: relative; z-index: 5;">
+          <script>
+            atOptions = {
+              'key' : 'dd4ae91deaf5f67703a015f13641e79e',
+              'format' : 'iframe',
+              'height' : 250,
+              'width' : 300,
+              'params' : {}
+            };
+          </script>
+          <script src="https://www.highperformanceformat.com/dd4ae91deaf5f67703a015f13641e79e/invoke.js"></script>
+        </div>
+      </div>
+    </div>
+
+    <!-- REFERRAL PAGE -->
+    <div class="page" id="page-referral">
+      <div class="banner-ad" style="padding: 10px 0; overflow-x: auto;">
+        <span class="banner-label" style="z-index: 10;">বিজ্ঞাপন</span>
+        <div style="position: relative; z-index: 5; display: flex; justify-content: center;">
+          <script>
+            atOptions = {
+              'key' : '5fbba35c0da753aa09607ca216f86b0f',
+              'format' : 'iframe',
+              'height' : 90,
+              'width' : 728,
+              'params' : {}
+            };
+          </script>
+          <script src="https://www.highperformanceformat.com/5fbba35c0da753aa09607ca216f86b0f/invoke.js"></script>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-title"><span class="dot" style="background:var(--neon-green); box-shadow:0 0 8px var(--neon-green)"></span> রেফারেল স্ট্যাটিস্টিক্স</div>
+        <div class="ref-stats">
+          <div class="ref-stat-box">
+            <div class="ref-stat-val" id="ref-total">0</div>
+            <div class="ref-stat-lbl">মোট রেফারেল</div>
+          </div>
+          <div class="ref-stat-box">
+            <div class="ref-stat-val" id="ref-active">0</div>
+            <div class="ref-stat-lbl">সক্রিয়</div>
+          </div>
+          <div class="ref-stat-box">
+            <div class="ref-stat-val" id="ref-earn">0</div>
+            <div class="ref-stat-lbl">রেফারেল আয়</div>
+          </div>
+        </div>
+        <div class="ref-link-box">
+          <div class="ref-link-label">আপনার রেফারেল লিংক</div>
+          <div class="ref-link-row">
+            <div class="ref-link-text" id="ref-link-text">লোড হচ্ছে...</div>
+            <button class="copy-btn" onclick="copyRefLink()">📋 কপি</button>
+          </div>
+        </div>
+        <div class="share-btns">
+          <button class="share-btn btn-tg" onclick="shareOnTelegram()">📱 টেলিগ্রামে শেয়ার</button>
+          <button class="share-btn btn-qr" onclick="showQRCode()">📷 QR কোড</button>
+        </div>
+      </div>
+
+      <!-- Milestones -->
+      <div class="section-card">
+        <div class="section-title"><span class="dot" style="background:var(--neon-gold); box-shadow:0 0 8px var(--neon-gold)"></span> মাইলস্টোন</div>
+        <div class="milestone-list" id="milestone-list"></div>
+      </div>
+
+      <!-- Leaderboard -->
+      <div class="section-card" style="margin-bottom:0">
+        <div class="section-title"><span class="dot" style="background:var(--neon-pink); box-shadow:0 0 8px var(--neon-pink)"></span> লিডারবোর্ড</div>
+        <div style="display:flex; gap:8px; padding:0 14px 10px">
+          <button onclick="switchLB('coins')" id="lb-tab-coins" class="method-tab active" style="font-size:10px">💰 টপ আয়কারী</button>
+          <button onclick="switchLB('ref')" id="lb-tab-ref" class="method-tab" style="font-size:10px">👥 টপ রেফারেল</button>
+        </div>
+        <div id="leaderboard-list"></div>
+      </div>
+
+      <div class="banner-ad" style="margin-top:12px; padding: 10px 0;">
+        <span class="banner-label" style="z-index: 10;">বিজ্ঞাপন</span>
+        <div style="position: relative; z-index: 5;">
+          <script>
+            atOptions = {
+              'key' : 'dd4ae91deaf5f67703a015f13641e79e',
+              'format' : 'iframe',
+              'height' : 250,
+              'width' : 300,
+              'params' : {}
+            };
+          </script>
+          <script src="https://www.highperformanceformat.com/dd4ae91deaf5f67703a015f13641e79e/invoke.js"></script>
+        </div>
+      </div>
+    </div>
+
+    <!-- WALLET PAGE -->
+    <div class="page" id="page-wallet">
+      <div class="banner-ad" style="padding: 10px 0; overflow-x: auto;">
+        <span class="banner-label" style="z-index: 10;">বিজ্ঞাপন</span>
+        <div style="position: relative; z-index: 5; display: flex; justify-content: center;">
+          <script>
+            atOptions = {
+              'key' : '5fbba35c0da753aa09607ca216f86b0f',
+              'format' : 'iframe',
+              'height' : 90,
+              'width' : 728,
+              'params' : {}
+            };
+          </script>
+          <script src="https://www.highperformanceformat.com/5fbba35c0da753aa09607ca216f86b0f/invoke.js"></script>
+        </div>
+      </div>
+
+      <div class="wallet-balance-card">
+        <div class="wallet-label">বর্তমান ব্যালেন্স</div>
+        <div class="wallet-amount"><span id="wallet-balance">0</span> 🪙</div>
+        <div class="wallet-sub">কয়েন ব্যালেন্স</div>
+      </div>
+
+      <div class="wallet-grid">
+        <div class="wallet-stat">
+          <div class="wallet-stat-val color-green" id="wallet-total-earned">0</div>
+          <div class="wallet-stat-lbl">মোট আয়</div>
+        </div>
+        <div class="wallet-stat">
+          <div class="wallet-stat-val color-cyan" id="wallet-total-withdrawn">0</div>
+          <div class="wallet-stat-lbl">মোট উত্তোলন</div>
+        </div>
+        <div class="wallet-stat">
+          <div class="wallet-stat-val" style="color:#ff9f43" id="wallet-pending">0</div>
+          <div class="wallet-stat-lbl">পেন্ডিং</div>
+        </div>
+      </div>
+
+      <!-- Withdraw Requirements -->
+      <div class="section-card">
+        <div class="section-title"><span class="dot" style="background:#ff9f43; box-shadow:0 0 8px #ff9f43"></span> উত্তোলন শর্তাবলী</div>
+        <div style="padding:12px 14px; font-size:12px; color:var(--text-muted)">
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px">
+            <span>ন্যূনতম:</span>
+            <span class="color-gold fw700">১,০০,০০,০০০ কয়েন</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px">
+            <span>সমতুল্য:</span>
+            <span class="color-green fw700">১০০০০ টাকা / ১ USDT</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px">
+            <span>এড কমপ্লিশন:</span>
+            <span id="wd-ad-count" class="color-cyan fw700">০/১০</span>
+          </div>
+          <div style="display:flex; justify-content:space-between">
+            <span>রেফারেল শর্ত:</span>
+            <span id="wd-ref-count" class="fw700" style="color:#ff9f43">০/৭</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Withdraw Form -->
+      <div class="withdraw-form">
+        <div class="withdraw-title">💸 উত্তোলন করুন</div>
+        <div class="method-tabs">
+          <div class="method-tab active" onclick="selectMethod('bkash',this)">বিকাশ</div>
+          <div class="method-tab" onclick="selectMethod('nagad',this)">নগদ</div>
+          <div class="method-tab" onclick="selectMethod('usdt',this)">USDT</div>
+        </div>
+        <div class="input-group">
+          <div class="input-label" id="account-label">বিকাশ নম্বর</div>
+          <input class="input-field" type="text" id="withdraw-account" placeholder="01XXXXXXXXX">
+        </div>
+        <div class="input-group">
+          <div class="input-label">পরিমাণ (কয়েন)</div>
+          <input class="input-field" type="number" id="withdraw-amount" placeholder="10000000">
+        </div>
+        <button class="withdraw-btn" onclick="submitWithdraw()">উত্তোলনের আবেদন করুন</button>
+      </div>
+
+      <!-- Exchange -->
+      <div class="exchange-card">
+        <div class="exchange-title">🔄 কয়েন এক্সচেঞ্জ</div>
+        <div class="exchange-row">
+          <div class="exchange-box">
+            <div class="exchange-label">কয়েন</div>
+            <div class="exchange-val" id="exc-coin-val">10,000</div>
+          </div>
+          <div class="exchange-arrow">→</div>
+          <div class="exchange-box">
+            <div class="exchange-label">টাকা</div>
+            <div class="exchange-val" id="exc-taka-val" style="color:var(--neon-green)">৫.০০</div>
+          </div>
+        </div>
+        <input type="range" id="exc-slider" min="10000" max="1000000" step="10000" value="10000"
+          style="width:100%; margin-bottom:6px; accent-color:var(--neon-purple)"
+          oninput="updateExchange(this.value)">
+        <div class="exchange-rate">রেট: ১০,০০০ কয়েন = ৫ টাকা | ৫ সাইকেল এড প্রয়োজন</div>
+        <button class="exchange-btn" onclick="doExchange()">এক্সচেঞ্জ করুন 🔄</button>
+      </div>
+
+      <!-- Withdraw History -->
+      <div class="section-card" style="margin-bottom:0">
+        <div class="section-title"><span class="dot"></span> উত্তোলন ইতিহাস</div>
+        <div id="withdraw-history" style="padding:0 14px 14px; font-size:12px; color:var(--text-muted); text-align:center">
+          কোনো ইতিহাস নেই
+        </div>
+      </div>
+
+      <div class="banner-ad" style="margin-top:12px; padding: 10px 0;">
+        <span class="banner-label" style="z-index: 10;">বিজ্ঞাপন</span>
+        <div style="position: relative; z-index: 5;">
+          <script>
+            atOptions = {
+              'key' : 'dd4ae91deaf5f67703a015f13641e79e',
+              'format' : 'iframe',
+              'height' : 250,
+              'width' : 300,
+              'params' : {}
+            };
+          </script>
+          <script src="https://www.highperformanceformat.com/dd4ae91deaf5f67703a015f13641e79e/invoke.js"></script>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+
+  <!-- Bottom Nav -->
+  <div id="bottom-nav">
+    <button class="nav-btn active" id="nav-home" onclick="navigate('home')">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">হোম</span>
+    </button>
+    <button class="nav-btn" id="nav-tasks" onclick="navigate('tasks')">
+      <span class="nav-icon">✅</span>
+      <span class="nav-label">টাস্ক</span>
+    </button>
+    <button class="nav-btn" id="nav-referral" onclick="navigate('referral')">
+      <span class="nav-icon">👥</span>
+      <span class="nav-label">রেফারেল</span>
+    </button>
+    <button class="nav-btn" id="nav-wallet" onclick="navigate('wallet')">
+      <span class="nav-icon">💰</span>
+      <span class="nav-label">ওয়ালেট</span>
+    </button>
+    <div class="nav-indicator" id="nav-indicator"></div>
+  </div>
+</div>
+
+<script>
+// =================== STORAGE ===================
+const STORE = {
+  get(k, def=null) { try { const v=localStorage.getItem(k); return v!==null?JSON.parse(v):def; } catch{ return def; } },
+  set(k,v) { try { localStorage.setItem(k,JSON.stringify(v)); } catch{} },
+  keys: {
+    balance:'fe_balance', totalEarned:'fe_total_earned',
+    dailyReward:'fe_daily_reward', spinHistory:'fe_spin_history',
+    referral:'fe_referral', withdraws:'fe_withdraws',
+    tasks:'fe_tasks', cooldowns:'fe_cooldowns',
+    achievements:'fe_achievements', settings:'fe_settings',
+    userInfo:'fe_user_info', vipLevel:'fe_vip', joinDate:'fe_join',
+    adCompletions:'fe_ad_completions', totalSpins:'fe_total_spins',
+    lastLucky:'fe_last_lucky', spinSession:'fe_spin_session',
+    spinResetTime:'fe_spin_reset', tasksResetTime:'fe_tasks_reset',
+    tasksDone:'fe_tasks_done',
+  }
+};
+
+// =================== STATE ===================
+let STATE = {
+  balance: STORE.get(STORE.keys.balance, 0),
+  totalEarned: STORE.get(STORE.keys.totalEarned, 0),
+  userId: 'DEMO123',
+  firstName: 'Free User',
+  username: 'freeuser',
+  photoUrl: null,
+  currentPage: 'home',
+  isSpinning: false,
+  spinAngle: 0,
+  spinsLeft: 21,
+  spinResetTime: STORE.get(STORE.keys.spinResetTime, 0),
+  spinUsed: 0,
+  sessionWins: 0,
+  autoSpinActive: false,
+  autoSpinPaused: false,
+  autoSpinTotal: 0,
+  autoSpinEarn: 0,
+  autoSpinInterval: null,
+  pendingReward: 0,
+  pendingCallback: null,
+  totalSpins: STORE.get(STORE.keys.totalSpins, 0),
+  adCompletions: STORE.get(STORE.keys.adCompletions, 0),
+  withdrawHistory: STORE.get(STORE.keys.withdraws, []),
+  withdrawMethod: 'bkash',
+  lbTab: 'coins',
+  isFirstSpin: STORE.get(STORE.keys.spinHistory, []).length === 0,
+  tasksDone: STORE.get(STORE.keys.tasksDone, 0),
+  tasksResetTime: STORE.get(STORE.keys.tasksResetTime, 0),
+  referrals: STORE.get(STORE.keys.referral, { total:0, active:0, earned:0, list:[] }),
+  achievements: STORE.get(STORE.keys.achievements, {}),
+  dailyStreak: STORE.get(STORE.keys.dailyReward, { day:0, lastClaim:0, streak:0 }),
+  mysteryAmount: 0,
+};
+
+// =================== TELEGRAM SDK ===================
+function initTelegram() {
+  const tg = window.Telegram?.WebApp;
+  if (tg) {
+    tg.ready();
+    tg.expand();
+    const u = tg.initDataUnsafe?.user;
+    if (u) {
+      STATE.userId = u.id;
+      STATE.firstName = u.first_name || 'User';
+      STATE.username = u.username || 'user';
+      STATE.photoUrl = u.photo_url || null;
+    }
+    // Theme
+    if (tg.colorScheme === 'light') {
+      document.documentElement.style.setProperty('--bg-primary','#f0f0ff');
+      document.documentElement.style.setProperty('--text-primary','#1a1a3e');
+    }
+    // Back button
+    tg.BackButton.onClick(() => { if(STATE.currentPage!=='home') navigate('home'); else tg.close(); });
+    // Haptic
+    window.haptic = (t='light') => { try { tg.HapticFeedback.impactOccurred(t); } catch{} };
+  } else {
+    window.haptic = () => {};
+  }
+  // Demo mode - add fake referrals for showcase
+  if (!STATE.referrals.total) {
+    STATE.referrals = { total:3, active:2, earned:1200, list:['User1','User2','User3'] };
+    STORE.set(STORE.keys.referral, STATE.referrals);
+  }
+}
+
+// =================== BACKGROUND CANVAS ===================
+function initBgCanvas() {
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles=[];
+  function resize() {
+    W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight;
+  }
+  resize(); window.addEventListener('resize',resize);
+  class Particle {
+    constructor() { this.reset(); }
+    reset() {
+      this.x=Math.random()*W; this.y=Math.random()*H;
+      this.r=Math.random()*2+0.5; this.speed=Math.random()*0.3+0.1;
+      this.opacity=Math.random()*0.5+0.1;
+      this.color=Math.random()<0.5?`rgba(168,85,247,${this.opacity})`:`rgba(0,229,255,${this.opacity})`;
+      this.dy=-this.speed; this.dx=(Math.random()-0.5)*0.2;
+    }
+    update() { this.y+=this.dy; this.x+=this.dx; if(this.y<0||this.x<0||this.x>W) this.reset(); }
+    draw() { ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2); ctx.fillStyle=this.color; ctx.fill(); }
+  }
+  for(let i=0;i<80;i++) particles.push(new Particle());
+  // Gradient bg
+  function drawBg() {
+    const g=ctx.createRadialGradient(W*0.3,H*0.2,0,W*0.3,H*0.2,W*0.8);
+    g.addColorStop(0,'rgba(26,10,58,0.6)');
+    g.addColorStop(0.5,'rgba(10,10,26,0.8)');
+    g.addColorStop(1,'rgba(5,5,15,1)');
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  }
+  function loop() {
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='rgba(10,10,26,0.97)'; ctx.fillRect(0,0,W,H);
+    drawBg();
+    particles.forEach(p=>{ p.update(); p.draw(); });
+    requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+// =================== SPIN WHEEL ===================
+const WHEEL_SEGMENTS = [
+  {label:'৫০', value:50, display:'৫০', color:'#a855f7'},
+  {label:'৭০', value:70, display:'৭০', color:'#00e5ff'},
+  {label:'৯০', value:90, display:'৯০', color:'#ff6b00'},
+  {label:'আবার চেষ্টা', value:0, display:'🔄', color:'#374151'},
+  {label:'১০০', value:100, display:'১০০', color:'#ffd700'},
+  {label:'১২০★', value:100, display:'১২০', color:'#ff00aa'},
+  {label:'১৪০★', value:90, display:'১৪০', color:'#00ff88'},
+  {label:'১৫০★', value:100, display:'১৫০', color:'#f97316'},
+];
+const SEG_ANGLE = (Math.PI*2)/8;
+let wheelCanvas, wheelCtx, currentAngle=0;
+
+function initWheel() {
+  wheelCanvas = document.getElementById('wheel-canvas');
+  wheelCtx = wheelCanvas.getContext('2d');
+  drawWheel(0);
+}
+
+function drawWheel(angle) {
+  const ctx=wheelCtx, W=260, cx=130, cy=130, r=120, ir=36;
+  ctx.clearRect(0,0,W,W);
+  // Outer glow ring
+  const glow=ctx.createRadialGradient(cx,cy,r-10,cx,cy,r+5);
+  glow.addColorStop(0,'rgba(168,85,247,0.3)'); glow.addColorStop(1,'transparent');
+  ctx.beginPath(); ctx.arc(cx,cy,r+5,0,Math.PI*2); ctx.fillStyle=glow; ctx.fill();
+
+  WHEEL_SEGMENTS.forEach((seg,i) => {
+    const start=angle+i*SEG_ANGLE, end=start+SEG_ANGLE;
+    // Segment
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,start,end); ctx.closePath();
+    const g=ctx.createRadialGradient(cx,cy,ir,cx,cy,r);
+    g.addColorStop(0,seg.color+'44'); g.addColorStop(1,seg.color+'cc');
+    ctx.fillStyle=g; ctx.fill();
+    // Border
+    ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1.5; ctx.stroke();
+    // Text
+    ctx.save(); ctx.translate(cx,cy); ctx.rotate(start+SEG_ANGLE/2);
+    ctx.translate(r*0.67,0); ctx.rotate(Math.PI/2);
+    ctx.fillStyle='#fff'; ctx.font='bold 13px "Exo 2",sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.shadowColor=seg.color; ctx.shadowBlur=8;
+    ctx.fillText(seg.display,0,0); ctx.restore();
+  });
+  // Inner circle
+  ctx.beginPath(); ctx.arc(cx,cy,ir,0,Math.PI*2);
+  const ig=ctx.createRadialGradient(cx,cy,0,cx,cy,ir);
+  ig.addColorStop(0,'#1a1a4e'); ig.addColorStop(1,'#0a0a20');
+  ctx.fillStyle=ig; ctx.fill();
+  ctx.strokeStyle='rgba(255,215,0,0.4)'; ctx.lineWidth=2; ctx.stroke();
+}
+
+function getWheelResult() {
+  const actual=[50,70,90,100]; return actual[Math.floor(Math.random()*actual.length)];
+}
+
+let spinAnimId=null;
+function spinWheel(callback) {
+  if(STATE.isSpinning) return;
+  STATE.isSpinning=true;
+  haptic('medium');
+  document.getElementById('wheel-wrap').classList.add('spinning');
+  const result=getWheelResult();
+  const seg=result===50?0:result===70?1:result===90?2:4;
+  const targetAngle=-seg*SEG_ANGLE-SEG_ANGLE/2-Math.PI/2 + Math.PI*2*5 + Math.random()*0.3;
+  let startAngle=currentAngle, startTime=null;
+  const duration=4000;
+  function easeOut(t){return 1-Math.pow(1-t,4);}
+  function animate(ts) {
+    if(!startTime) startTime=ts;
+    const prog=Math.min((ts-startTime)/duration,1);
+    const cur=startAngle+(targetAngle-startAngle)*easeOut(prog);
+    currentAngle=cur; drawWheel(cur);
+    if(prog<1){ spinAnimId=requestAnimationFrame(animate); }
+    else {
+      STATE.isSpinning=false;
+      document.getElementById('wheel-wrap').classList.remove('spinning');
+      callback(result);
+    }
+  }
+  spinAnimId=requestAnimationFrame(animate);
+}
+
+// =================== SPIN LOGIC ===================
+function checkSpinReset() {
+  const now=Date.now();
+  if(STATE.spinResetTime===0 || now>STATE.spinResetTime) {
+    STATE.spinUsed=0; STATE.spinsLeft=21;
+    STATE.spinResetTime=now+4*60*60*1000;
+    STORE.set(STORE.keys.spinResetTime,STATE.spinResetTime);
+  } else {
+    const hist=STORE.get(STORE.keys.spinHistory,[]);
+    const recentSpins=hist.filter(h=>h.time>STATE.spinResetTime-4*60*60*1000);
+    STATE.spinUsed=Math.min(recentSpins.length,21);
+    STATE.spinsLeft=Math.max(0,21-STATE.spinUsed);
+  }
+}
+
+function doSpin() {
+  checkSpinReset();
+  if(STATE.spinsLeft<=0){ showToast('কুলডাউন চলছে! পরে চেষ্টা করুন ⏳','error'); return; }
+  if(STATE.isSpinning) return;
+  if(STATE.isFirstSpin) { executeSpin(); return; }
+  showAd('A',15,()=>{ executeSpin(); });
+}
+
+function executeSpin() {
+  STATE.isFirstSpin=false;
+  updateSpinUI();
+  spinWheel(reward=>{ showSpinResult(reward); });
+}
+
+function showSpinResult(reward) {
+  STATE.spinsLeft--; STATE.spinUsed++;
+  STATE.totalSpins++; STATE.sessionWins+=reward;
+  STORE.set(STORE.keys.totalSpins,STATE.totalSpins);
+  const hist=STORE.get(STORE.keys.spinHistory,[]);
+  hist.push({time:Date.now(),reward});
+  if(hist.length>200) hist.shift();
+  STORE.set(STORE.keys.spinHistory,hist);
+  updateSpinUI();
+  if(reward===0){
+    showToast('এবার হলো না, আবার চেষ্টা করুন 🔄','info'); return;
+  }
+  STATE.pendingReward=reward;
+  STATE.pendingCallback=()=>{ addBalance(reward,'spin'); checkAchievements(); };
+  showResult(reward,'🎰','কয়েন জিতেছেন!');
+  haptic('heavy');
+  unlockAchievement('first_spin');
+}
+
+function claimReward() {
+  const cb=STATE.pendingCallback;
+  STATE.pendingReward=0; STATE.pendingCallback=null;
+  hideResult();
+  showAd('B',15,()=>{ if(cb) cb(); });
+}
+
+// =================== AD SYSTEM ===================
+let adTimer=null, adCallback=null, adSeconds=15;
+
+const AD_CONFIGS=[
+  {type:'A',emoji:'🎯',title:'প্রিমিয়াম অফার!',sub:'এই বিজ্ঞাপন দেখুন এবং পুরস্কার পান'},
+  {type:'A',emoji:'💎',title:'একচেটিয়া ডিল!',sub:'সীমিত সময়ের অফার - এখনই দেখুন'},
+  {type:'B',emoji:'🚀',title:'বিশেষ অফার!',sub:'আপনার জন্য বিশেষ ডিসকাউন্ট'},
+  {type:'B',emoji:'⭐',title:'VIP অফার!',sub:'শুধুমাত্র আপনার জন্য এক্সক্লুসিভ ডিল'},
+];
+
+function showAd(type, seconds, callback) {
+  // ডাইরেক্ট লিংক নতুন ট্যাবে ওপেন হবে
+  const directLink = "https://www.effectivecpmnetwork.com/e8kz77b1k?key=6ccccf0192511dcf2fd4bdac00b4bff9";
+  try {
+    window.open(directLink, '_blank');
+  } catch (e) {}
+
+  const cfg=AD_CONFIGS.filter(a=>a.type===type);
+  const c=cfg.length ? cfg[Math.floor(Math.random()*cfg.length)] : AD_CONFIGS[0];
+  
+  document.getElementById('ad-modal').classList.remove('hidden');
+  document.getElementById('ad-type-label').textContent=`Adsterra-${type}`;
+  document.getElementById('ad-emoji').textContent=c.emoji;
+  document.getElementById('ad-title').textContent=c.title;
+  document.getElementById('ad-sub').textContent=c.sub;
+  document.getElementById('ad-skip-btn').classList.remove('visible');
+  document.getElementById('ad-progress').style.width='0%';
+  adCallback=callback; adSeconds=seconds;
+  
+  let elapsed=0;
+  const interval=100;
+  clearInterval(adTimer);
+  adTimer=setInterval(()=>{
+    elapsed+=interval;
+    const pct=Math.min((elapsed/(seconds*1000))*100,100);
+    const rem=Math.max(0,Math.ceil((seconds*1000-elapsed)/1000));
+    document.getElementById('ad-timer').textContent=rem;
+    document.getElementById('ad-timer-text').textContent=rem+'s';
+    document.getElementById('ad-progress').style.width=pct+'%';
+    if(elapsed>=seconds*1000){
+      clearInterval(adTimer);
+      document.getElementById('ad-skip-btn').classList.add('visible');
+      STATE.adCompletions++; STORE.set(STORE.keys.adCompletions,STATE.adCompletions);
+    }
+  },interval);
+}
+
+function skipAd() {
+  clearInterval(adTimer);
+  document.getElementById('ad-modal').classList.add('hidden');
+  haptic('light');
+  if(adCallback){ const cb=adCallback; adCallback=null; cb(); }
+}
+
+// =================== BALANCE ===================
+function addBalance(amount, source='') {
+  STATE.balance+=amount; STATE.totalEarned+=amount;
+  STORE.set(STORE.keys.balance,STATE.balance);
+  STORE.set(STORE.keys.totalEarned,STATE.totalEarned);
+  updateBalanceUI();
+  showToast(`+${amount} কয়েন যোগ হয়েছে! 🪙`,'gold');
+  spawnCoinFly(amount);
+  haptic('medium');
+  checkVIP();
+}
+
+function updateBalanceUI() {
+  const fmt=n=>n.toLocaleString('bn-BD');
+  document.getElementById('header-balance').textContent=fmt(STATE.balance);
+  document.getElementById('wallet-balance').textContent=fmt(STATE.balance);
+  document.getElementById('wallet-total-earned').textContent=fmt(STATE.totalEarned);
+  document.getElementById('wallet-total-withdrawn').textContent=
+    fmt(STATE.withdrawHistory.reduce((s,w)=>s+(w.amount||0),0));
+  document.getElementById('wallet-pending').textContent=
+    fmt(STATE.withdrawHistory.filter(w=>w.status==='pending').reduce((s,w)=>s+(w.amount||0),0));
+  document.getElementById('session-wins').textContent=fmt(STATE.sessionWins);
+  document.getElementById('wd-ad-count').textContent=`${Math.min(STATE.adCompletions,10)}/10`;
+  document.getElementById('wd-ref-count').textContent=`${Math.min(STATE.referrals.total,7)}/7`;
+}
+
+function spawnCoinFly(amount) {
+  const el=document.createElement('div');
+  el.className='coin-fly'; el.textContent='🪙';
+  el.style.left=Math.random()*60+20+'%';
+  el.style.top='40%';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),1200);
+}
+
+// =================== DAILY REWARD ===================
+const DAILY_REWARDS=[10,20,30,50,70,90,100];
+
+function initDailyReward() {
+  const grid=document.getElementById('daily-grid');
+  grid.innerHTML='';
+  const today=getTodayUTC();
+  const d=STATE.dailyStreak;
+  const canClaim = d.lastClaim < today;
+  DAILY_REWARDS.forEach((r,i)=>{
+    const box=document.createElement('div');
+    box.className='day-box';
+    const dayNum=i+1;
+    const claimed=d.streak>i && d.lastClaim>0;
+    const isToday=d.streak===i && canClaim;
+    if(claimed) { box.classList.add('claimed'); }
+    else if(isToday) { box.classList.add('active'); }
+    else if(!claimed&&!isToday) { box.classList.add('locked'); }
+    box.innerHTML=`
+      <span class="day-num">D${dayNum}</span>
+      <span class="day-icon">${['🌱','🌿','🍀','⭐','💫','🌟','🏆'][i]}</span>
+      <span class="day-reward">${r}🪙</span>
+      ${claimed?'<span class="day-check">✓</span>':''}
+    `;
+    grid.appendChild(box);
+  });
+  const claimBtn=document.getElementById('daily-claim-btn');
+  if(!canClaim||d.streak>=7){
+    claimBtn.disabled=true;
+    claimBtn.textContent=canClaim?'সব দিন সম্পন্ন! 🎉':'আগামীকাল আসুন ⏰';
+  } else {
+    claimBtn.disabled=false;
+    claimBtn.textContent=`দিন ${d.streak+1}: ${DAILY_REWARDS[d.streak]}🪙 ক্লেইম করুন`;
+  }
+}
+
+function getTodayUTC() {
+  const now=new Date(); return new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime();
+}
+
+function claimDailyReward() {
+  const today=getTodayUTC();
+  if(STATE.dailyStreak.lastClaim>=today){ showToast('আজকের রিওয়ার্ড ইতিমধ্যে ক্লেইম করা হয়েছে!','error'); return; }
+  const reward=DAILY_REWARDS[STATE.dailyStreak.streak]||100;
+  showAd('B',10,()=>{
+    STATE.dailyStreak.streak++; STATE.dailyStreak.lastClaim=today;
+    STORE.set(STORE.keys.dailyReward,STATE.dailyStreak);
+    addBalance(reward,'daily');
+    unlockAchievement('daily_hero');
+    initDailyReward();
+    showToast(`ডেইলি রিওয়ার্ড: +${reward}🪙 🎁`,'gold');
+  });
+}
+
+// =================== SPIN UI ===================
+function updateSpinUI() {
+  checkSpinReset();
+  document.getElementById('spins-left-val').textContent=STATE.spinsLeft;
+  document.getElementById('spins-progress-text').textContent=`${STATE.spinUsed}/21`;
+  document.getElementById('spin-progress-fill').style.width=`${(STATE.spinUsed/21)*100}%`;
+  document.getElementById('auto-total-spins').textContent=STATE.autoSpinTotal;
+  document.getElementById('auto-session-earn').textContent=STATE.autoSpinEarn;
+  // Cooldown
+  const rem=STATE.spinResetTime-Date.now();
+  if(rem>0 && STATE.spinsLeft===0) {
+    const h=Math.floor(rem/3600000), m=Math.floor((rem%3600000)/60000), s=Math.floor((rem%60000)/1000);
+    document.getElementById('cooldown-timer').textContent=`${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  } else {
+    document.getElementById('cooldown-timer').textContent='রেডি ✓';
+  }
+}
+
+// =================== AUTO SPIN ===================
+function startAutoSpin() {
+  if(STATE.autoSpinActive) return;
+  STATE.autoSpinActive=true; STATE.autoSpinPaused=false;
+  document.getElementById('auto-start-btn').disabled=true;
+  document.getElementById('auto-pause-btn').disabled=false;
+  document.getElementById('auto-stop-btn').disabled=false;
+  document.getElementById('auto-status-text').textContent='চলছে ⚡';
+  document.getElementById('auto-status-text').style.color='var(--neon-green)';
+  runAutoSpinCycle();
+}
+
+function runAutoSpinCycle() {
+  if(!STATE.autoSpinActive||STATE.autoSpinPaused) return;
+  checkSpinReset();
+  if(STATE.spinsLeft<=0){ stopAutoSpin(); showToast('স্পিন শেষ! অটো স্পিন বন্ধ হয়েছে','info'); return; }
+  showAd('A',15,()=>{
+    if(!STATE.autoSpinActive||STATE.autoSpinPaused) return;
+    showAd('A',15,()=>{
+      if(!STATE.autoSpinActive||STATE.autoSpinPaused) return;
+      spinWheel(reward=>{
+        STATE.autoSpinTotal++; STATE.autoSpinEarn+=reward;
+        STATE.spinsLeft--; STATE.spinUsed++; STATE.totalSpins++;
+        STORE.set(STORE.keys.totalSpins,STATE.totalSpins);
+        updateSpinUI();
+        if(reward>0){ addBalance(reward,'auto_spin'); }
+        setTimeout(()=>{ if(STATE.autoSpinActive&&!STATE.autoSpinPaused) runAutoSpinCycle(); },2000);
+      });
+    });
+  });
+}
+
+function pauseAutoSpin() {
+  STATE.autoSpinPaused=!STATE.autoSpinPaused;
+  const btn=document.getElementById('auto-pause-btn');
+  btn.textContent=STATE.autoSpinPaused?'▶ রিজিউম':'⏸ পজ';
+  document.getElementById('auto-status-text').textContent=STATE.autoSpinPaused?'পজ ⏸':'চলছে ⚡';
+  document.getElementById('auto-status-text').style.color=STATE.autoSpinPaused?'var(--neon-gold)':'var(--neon-green)';
+  if(!STATE.autoSpinPaused) runAutoSpinCycle();
+}
+
+function stopAutoSpin() {
+  STATE.autoSpinActive=false; STATE.autoSpinPaused=false;
+  document.getElementById('auto-start-btn').disabled=false;
+  document.getElementById('auto-pause-btn').disabled=true;
+  document.getElementById('auto-stop-btn').disabled=true;
+  document.getElementById('auto-pause-btn').textContent='⏸ পজ';
+  document.getElementById('auto-status-text').textContent='বন্ধ';
+  document.getElementById('auto-status-text').style.color='var(--text-muted)';
+  showToast('অটো স্পিন বন্ধ করা হয়েছে','info');
+}
+
+// =================== TASKS ===================
+const TASKS_CONFIG = [
+  {id:'video_watch',name:'ভিডিও দেখুন',icon:'🎬',iconBg:'linear-gradient(135deg,#ff6b00,#ff00aa)',reward:30,cd:3600,type:'normal'},
+  {id:'ad_watch',name:'বিজ্ঞাপন দেখুন',icon:'📺',iconBg:'linear-gradient(135deg,#a855f7,#00e5ff)',reward:25,cd:1800,type:'normal'},
+  {id:'auto_video',name:'অটো ভিডিও দেখুন',icon:'🎥',iconBg:'linear-gradient(135deg,#00ff88,#00e5ff)',reward:40,cd:7200,type:'auto'},
+  {id:'auto_ad',name:'অটো বিজ্ঞাপন দেখুন',icon:'📡',iconBg:'linear-gradient(135deg,#ffd700,#ff6b00)',reward:35,cd:7200,type:'auto'},
+  {id:'website_visit',name:'ওয়েবসাইট ভিজিট',icon:'🌐',iconBg:'linear-gradient(135deg,#0088cc,#00c3f3)',reward:20,cd:3600,type:'normal'},
+  {id:'shortlink',name:'শর্ট লিংক খুলুন',icon:'🔗',iconBg:'linear-gradient(135deg,#ff00aa,#a855f7)',reward:15,cd:1800,type:'normal'},
+  {id:'daily_bonus',name:'ডেইলি বোনাস টাস্ক',icon:'🎁',iconBg:'linear-gradient(135deg,#ffd700,#00ff88)',reward:50,cd:86400,type:'normal'},
+  {id:'mystery_task',name:'মিস্ট্রি রিওয়ার্ড টাস্ক',icon:'🎲',iconBg:'linear-gradient(135deg,#a855f7,#ff00aa)',reward:0,cd:14400,type:'mystery'},
+];
+
+let taskCooldowns=STORE.get(STORE.keys.cooldowns,{});
+
+function checkTaskReset() {
+  const now=Date.now();
+  if(STATE.tasksResetTime===0||now>STATE.tasksResetTime){
+    STATE.tasksDone=0; STATE.tasksResetTime=now+4*60*60*1000;
+    STORE.set(STORE.keys.tasksDone,0); STORE.set(STORE.keys.tasksResetTime,STATE.tasksResetTime);
+  }
+}
+
+function renderTasks() {
+  checkTaskReset();
+  const list=document.getElementById('task-list');
+  list.innerHTML='';
+  const tasksData=STORE.get(STORE.keys.tasks,{});
+  TASKS_CONFIG.forEach(task=>{
+    const data=tasksData[task.id]||{completions:0};
+    const cdKey=`task_cd_${task.id}`;
+    const cdUntil=taskCooldowns[cdKey]||0;
+    const now=Date.now();
+    const onCd=now<cdUntil;
+    const remSec=Math.max(0,Math.ceil((cdUntil-now)/1000));
+    const card=document.createElement('div');
+    card.className='task-card'; card.id=`task-${task.id}`;
+    const pct=data.completions>0?Math.min((data.completions/5)*100,100):0;
+    let btnText='GO', btnClass='task-btn', btnDisabled='';
+    if(onCd){ btnText=formatTime(remSec); btnClass='task-btn done'; btnDisabled='disabled'; }
+    else if(STATE.tasksDone>=20){ btnText='লিমিট'; btnClass='task-btn done'; btnDisabled='disabled'; }
+    card.innerHTML=`
+      <div class="task-icon" style="background:${task.iconBg}">${task.icon}</div>
+      <div class="task-info">
+        <div class="task-name">${task.name}</div>
+        <div class="task-meta">
+          <span class="task-reward">+${task.reward||'?'} 🪙</span>
+          <span class="task-cd">${onCd?'⏰ '+formatTime(remSec):task.type==='auto'?'অটো':''}  ${data.completions>0?`${data.completions}x`:'새'}</span>
+        </div>
+        <div class="task-bar"><div class="task-bar-fill" style="width:${pct}%"></div></div>
+      </div>
+      <button class="${btnClass}" ${btnDisabled} onclick="startTask('${task.id}')">${btnText}</button>
+    `;
+    list.appendChild(card);
+  });
+  const done=STATE.tasksDone;
+  document.getElementById('tasks-done-count').textContent=`${done}/20 টাস্ক সম্পন্ন`;
+  document.getElementById('tasks-global-progress').style.width=`${(done/20)*100}%`;
+  const rem=STATE.tasksResetTime-Date.now();
+  if(rem>0){ const h=Math.floor(rem/3600000),m=Math.floor((rem%3600000)/60000); document.getElementById('tasks-cooldown-txt').textContent=`রিসেট: ${h}ঘ ${m}মি`; }
+}
+
+function formatTime(sec) {
+  if(sec>=3600){ const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60); return `${h}ঘ${m}মি`; }
+  const m=Math.floor(sec/60),s=sec%60;
+  return `${m}:${String(s).padStart(2,'0')}`;
+}
+
+function startTask(taskId) {
+  if(STATE.tasksDone>=20){ showToast('টাস্ক লিমিট পূর্ণ! পরে আসুন','error'); return; }
+  const task=TASKS_CONFIG.find(t=>t.id===taskId);
+  if(!task) return; haptic('light');
+  if(task.type==='mystery'){
+    const r=Math.floor(Math.random()*80)+20;
+    showAd('B',20,()=>{ completeTask(taskId,r); });
+    return;
+  }
+  if(task.type==='auto'){
+    showAd('A',15,()=>{
+      showAd('A',15,()=>{ completeTask(taskId,task.reward); });
+    });
+    return;
+  }
+  showAd('B',20,()=>{ completeTask(taskId,task.reward); });
+}
+
+function completeTask(taskId,reward) {
+  const task=TASKS_CONFIG.find(t=>t.id===taskId);
+  if(!task) return;
+  STATE.tasksDone++;
+  STORE.set(STORE.keys.tasksDone,STATE.tasksDone);
+  taskCooldowns[`task_cd_${taskId}`]=Date.now()+task.cd*1000;
+  STORE.set(STORE.keys.cooldowns,taskCooldowns);
+  const tasksData=STORE.get(STORE.keys.tasks,{});
+  if(!tasksData[taskId]) tasksData[taskId]={completions:0};
+  tasksData[taskId].completions++;
+  STORE.set(STORE.keys.tasks,tasksData);
+  addBalance(reward,'task');
+  renderTasks();
+  showToast(`টাস্ক সম্পন্ন! +${reward}🪙`,'success');
+}
+
+// =================== REFERRAL ===================
+function initReferral() {
+  const ref=STATE.referrals;
+  document.getElementById('ref-total').textContent=ref.total;
+  document.getElementById('ref-active').textContent=ref.active;
+  document.getElementById('ref-earn').textContent=ref.earned;
+  const link=`https://t.me/FreeEarnBot?start=${STATE.userId}`;
+  document.getElementById('ref-link-text').textContent=link;
+  renderMilestones();
+  renderLeaderboard();
+}
+
+function copyRefLink() {
+  const link=`https://t.me/FreeEarnBot?start=${STATE.userId}`;
+  navigator.clipboard?.writeText(link).then(()=>showToast('লিংক কপি হয়েছে! 📋','success'))
+    .catch(()=>{ document.execCommand('copy'); showToast('লিংক কপি হয়েছে! 📋','success'); });
+  haptic('light');
+}
+
+function shareOnTelegram() {
+  const link=`https://t.me/FreeEarnBot?start=${STATE.userId}`;
+  const text=`Free Earn অ্যাপে যোগ দিন এবং প্রতিদিন কয়েন উপার্জন করুন! 🪙\n${link}`;
+  const tg=window.Telegram?.WebApp;
+  if(tg) { try { tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent('Free Earn-এ যোগ দিন! প্রতিদিন কয়েন উপার্জন করুন 🪙')}`); return; } catch{} }
+  window.open(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`,'_blank');
+  haptic('light');
+}
+
+const MILESTONES=[
+  {refs:5,reward:'৫০০ কয়েন',icon:'🥉',desc:'৫টি রেফারেল সম্পন্ন'},
+  {refs:10,reward:'ভিআইপি ব্যাজ + ১৫০০🪙',icon:'🥈',desc:'১০টি রেফারেল সম্পন্ন'},
+  {refs:25,reward:'সুপার রিওয়ার্ড ৫০০০🪙',icon:'🏆',desc:'২৫টি রেফারেল সম্পন্ন'},
+  {refs:50,reward:'লেজেন্ড ব্যাজ ১৫০০০🪙',icon:'💎',desc:'৫০টি রেফারেল সম্পন্ন'},
+];
+
+function renderMilestones() {
+  const list=document.getElementById('milestone-list');
+  list.innerHTML='';
+  MILESTONES.forEach(m=>{
+    const done=STATE.referrals.total>=m.refs;
+    const item=document.createElement('div');
+    item.className='milestone-item';
+    item.innerHTML=`
+      <span class="milestone-icon">${m.icon}</span>
+      <div class="milestone-info">
+        <div class="milestone-title">${m.desc}</div>
+        <div class="milestone-sub">${STATE.referrals.total}/${m.refs} রেফারেল</div>
+      </div>
+      <span class="milestone-reward">${m.reward}</span>
+      ${done?'<span class="milestone-badge">✓ সম্পন্ন</span>':''}
+    `;
+    list.appendChild(item);
+  });
+}
+
+function switchLB(tab) {
+  STATE.lbTab=tab;
+  document.getElementById('lb-tab-coins').className='method-tab'+(tab==='coins'?' active':'');
+  document.getElementById('lb-tab-ref').className='method-tab'+(tab==='ref'?' active':'');
+  renderLeaderboard();
+}
+
+const FAKE_LB=[
+  {name:'RahimBhai',emoji:'👑',coins:458000,refs:28},
+  {name:'KarimUser',emoji:'💎',coins:321000,refs:19},
+  {name:'NazmaEarner',emoji:'🏆',coins:287500,refs:15},
+  {name:'TalhaKing',emoji:'⭐',coins:198000,refs:12},
+  {name:'SharmilaTop',emoji:'🌟',coins:154000,refs:9},
+];
+
+function renderLeaderboard() {
+  const list=document.getElementById('leaderboard-list');
+  list.innerHTML='';
+  const myEntry={name:STATE.firstName,emoji:'👤',coins:STATE.balance,refs:STATE.referrals.total};
+  const data=[...FAKE_LB,myEntry].sort((a,b)=>STATE.lbTab==='coins'?b.coins-a.coins:b.refs-a.refs);
+  data.slice(0,8).forEach((item,i)=>{
+    const rankClass=i===0?'gold':i===1?'silver':i===2?'bronze':'';
+    const isMe=item.name===STATE.firstName;
+    const el=document.createElement('div');
+    el.className='lb-item';
+    el.style.background=isMe?'rgba(168,85,247,0.1)':'';
+    el.innerHTML=`
+      <span class="lb-rank ${rankClass}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</span>
+      <div class="lb-avatar">${item.emoji}</div>
+      <span class="lb-name">${item.name}${isMe?' (আপনি)':''}</span>
+      <span class="lb-coins">${STATE.lbTab==='coins'?item.coins.toLocaleString():item.refs}</span>
+    `;
+    list.appendChild(el);
+  });
+}
+
+function showQRCode() {
+  document.getElementById('qr-modal-overlay').classList.remove('hidden');
+  const canvas=document.getElementById('qr-canvas');
+  const ctx=canvas.getContext('2d');
+  const link=`https://t.me/FreeEarnBot?start=${STATE.userId}`;
+  // Simple QR placeholder
+  ctx.fillStyle='#fff'; ctx.fillRect(0,0,200,200);
+  ctx.fillStyle='#000';
+  // Draw fake QR pattern
+  const size=10;
+  for(let y=0;y<200;y+=size){
+    for(let x=0;x<200;x+=size){
+      if(Math.random()>0.5||(x<30&&y<30)||(x>160&&y<30)||(x<30&&y>160)){
+        ctx.fillRect(x+1,y+1,size-2,size-2);
+      }
+    }
+  }
+  // Corner squares
+  [[0,0],[160,0],[0,160]].forEach(([x,y])=>{
+    ctx.fillStyle='#000'; ctx.fillRect(x,y,40,40);
+    ctx.fillStyle='#fff'; ctx.fillRect(x+5,y+5,30,30);
+    ctx.fillStyle='#000'; ctx.fillRect(x+10,y+10,20,20);
+  });
+  ctx.fillStyle='#333'; ctx.font='7px monospace'; ctx.textAlign='center';
+  ctx.fillText(link.substring(0,30),100,195);
+}
+
+// =================== WALLET ===================
+function selectMethod(method, el) {
+  STATE.withdrawMethod=method;
+  document.querySelectorAll('.method-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  const labels={bkash:'বিকাশ নম্বর',nagad:'নগদ নম্বর',usdt:'USDT TRC20 ঠিকানা'};
+  const placeholders={bkash:'01XXXXXXXXX',nagad:'01XXXXXXXXX',usdt:'TXxxxxxxxx...'};
+  document.getElementById('account-label').textContent=labels[method];
+  document.getElementById('withdraw-account').placeholder=placeholders[method];
+}
+
+function submitWithdraw() {
+  const account=document.getElementById('withdraw-account').value.trim();
+  const amount=parseInt(document.getElementById('withdraw-amount').value);
+  if(!account){ showToast('অ্যাকাউন্ট নম্বর দিন','error'); return; }
+  if(!amount||amount<10000000){ showToast('ন্যূনতম ১,০০,০০,০০০ কয়েন প্রয়োজন','error'); return; }
+  if(STATE.balance<amount){ showToast('পর্যাপ্ত ব্যালেন্স নেই','error'); return; }
+  if(STATE.adCompletions<10){ showToast(`আরো ${10-STATE.adCompletions}টি এড কমপ্লিট করুন`,'error'); return; }
+  if(STATE.referrals.total<7){ showToast(`আরো ${7-STATE.referrals.total}টি রেফারেল প্রয়োজন`,'error'); return; }
+  showAd('A',15,()=>{
+    showAd('B',15,()=>{
+      STATE.balance-=amount; STORE.set(STORE.keys.balance,STATE.balance);
+      STATE.withdrawHistory.push({method:STATE.withdrawMethod,account,amount,status:'pending',time:Date.now()});
+      STORE.set(STORE.keys.withdraws,STATE.withdrawHistory);
+      updateBalanceUI();
+      renderWithdrawHistory();
+      showToast('উত্তোলনের আবেদন জমা হয়েছে! ✅','success');
+      document.getElementById('withdraw-account').value='';
+      document.getElementById('withdraw-amount').value='';
+    });
+  });
+}
+
+function renderWithdrawHistory() {
+  const el=document.getElementById('withdraw-history');
+  if(!STATE.withdrawHistory.length){ el.textContent='কোনো ইতিহাস নেই'; return; }
+  el.innerHTML=STATE.withdrawHistory.slice(-5).reverse().map(w=>`
+    <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05)">
+      <div>
+        <div style="font-size:12px; font-weight:600">${w.method.toUpperCase()}</div>
+        <div style="font-size:10px; color:var(--text-muted)">${new Date(w.time).toLocaleDateString('bn-BD')}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:12px; font-weight:700; color:var(--neon-gold)">${w.amount.toLocaleString()}🪙</div>
+        <div style="font-size:10px; color:${w.status==='pending'?'#ff9f43':'var(--neon-green)'}">
+          ${w.status==='pending'?'পেন্ডিং':'সম্পন্ন'}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function updateExchange(val) {
+  const coins=parseInt(val);
+  const taka=(coins/10000*5).toFixed(2);
+  document.getElementById('exc-coin-val').textContent=coins.toLocaleString();
+  document.getElementById('exc-taka-val').textContent='৳'+taka;
+}
+
+function doExchange() {
+  const coins=parseInt(document.getElementById('exc-slider').value);
+  if(STATE.balance<coins){ showToast('পর্যাপ্ত ব্যালেন্স নেই','error'); return; }
+  let cycle=0;
+  function runCycle() {
+    if(cycle>=5){ finishExchange(coins); return; }
+    showAd('A',20,()=>{ showAd('A',20,()=>{ cycle++; runCycle(); }); });
+  }
+  runCycle();
+}
+
+function finishExchange(coins) {
+  const taka=(coins/10000*5).toFixed(2);
+  STATE.balance-=coins; STORE.set(STORE.keys.balance,STATE.balance);
+  updateBalanceUI();
+  showToast(`এক্সচেঞ্জ সম্পন্ন! ${coins.toLocaleString()}🪙 = ৳${taka}`,'gold');
+}
+
+// =================== VIP SYSTEM ===================
+const VIP_LEVELS=[
+  {name:'ব্রোঞ্জ',emoji:'🥉',req:0,color:'#cd7f32'},
+  {name:'সিলভার',emoji:'🥈',req:1000,color:'#c0c0c0'},
+  {name:'গোল্ড',emoji:'🥇',req:5000,color:'#ffd700'},
+  {name:'ডায়মন্ড',emoji:'💎',req:20000,color:'#00e5ff'},
+  {name:'লেজেন্ডারি',emoji:'👑',req:100000,color:'#ff00aa'},
+];
+
+function checkVIP() {
+  let level=VIP_LEVELS[0];
+  VIP_LEVELS.forEach(v=>{ if(STATE.totalEarned>=v.req) level=v; });
+  document.getElementById('vip-badge-hdr').textContent=`${level.emoji} ${level.name}`;
+  document.getElementById('profile-vip').textContent=level.name;
+}
+
+function renderVIPRow() {
+  const row=document.getElementById('vip-row');
+  row.innerHTML='';
+  VIP_LEVELS.forEach(v=>{
+    const current=STATE.totalEarned>=v.req;
+    const div=document.createElement('div');
+    div.className='vip-card'+(current?' current':'');
+    div.innerHTML=`
+      <div class="vip-emoji">${v.emoji}</div>
+      <div class="vip-name" style="color:${v.color}">${v.name}</div>
+      <div class="vip-req">${v.req===0?'শুরু':v.req.toLocaleString()+'🪙'}</div>
+    `;
+    row.appendChild(div);
+  });
+}
+
+// =================== ACHIEVEMENTS ===================
+const ACHIEVEMENTS_CONFIG=[
+  {id:'first_spin',name:'প্রথম স্পিন',icon:'🎰',desc:'প্রথম স্পিন সম্পন্ন'},
+  {id:'lucky_winner',name:'লাকি উইনার',icon:'🍀',desc:'১০০+ কয়েন একবারে'},
+  {id:'referral_king',name:'রেফারেল কিং',icon:'👑',desc:'৫+ রেফারেল'},
+  {id:'daily_hero',name:'ডেইলি হিরো',icon:'⭐',desc:'প্রতিদিন ক্লেইম'},
+  {id:'coin_master',name:'কয়েন মাস্টার',icon:'💰',desc:'১০০০+ কয়েন আয়'},
+  {id:'spin_king',name:'স্পিন কিং',icon:'🎡',desc:'৫০+ স্পিন দেওয়া'},
+];
+
+function unlockAchievement(id) {
+  if(!STATE.achievements[id]){
+    STATE.achievements[id]=Date.now();
+    STORE.set(STORE.keys.achievements,STATE.achievements);
+    const ach=ACHIEVEMENTS_CONFIG.find(a=>a.id===id);
+    if(ach) showToast(`🏆 অ্যাচিভমেন্ট আনলক: ${ach.name}!`,'gold');
+    renderAchievements();
+  }
+}
+
+function checkAchievements() {
+  if(STATE.sessionWins>=100) unlockAchievement('lucky_winner');
+  if(STATE.referrals.total>=5) unlockAchievement('referral_king');
+  if(STATE.totalEarned>=1000) unlockAchievement('coin_master');
+  if(STATE.totalSpins>=50) unlockAchievement('spin_king');
+}
+
+function renderAchievements() {
+  const grid=document.getElementById('achievements-grid');
+  grid.innerHTML='';
+  ACHIEVEMENTS_CONFIG.forEach(ach=>{
+    const unlocked=!!STATE.achievements[ach.id];
+    const div=document.createElement('div');
+    div.className='ach-item'+(unlocked?' unlocked':'');
+    div.innerHTML=`
+      <div class="ach-icon">${unlocked?ach.icon:'🔒'}</div>
+      <div class="ach-name">${ach.name}</div>
+      <div class="ach-desc">${ach.desc}</div>
+    `;
+    grid.appendChild(div);
+  });
+}
+
+// =================== LUCKY BOX ===================
+function scheduleLuckyBox() {
+  const last=STORE.get(STORE.keys.lastLucky,0);
+  const now=Date.now();
+  const interval=2*60*60*1000; // 2 hours
+  if(now-last>interval){ document.getElementById('lucky-box-btn').classList.remove('hidden'); }
+  setInterval(()=>{
+    const l=STORE.get(STORE.keys.lastLucky,0);
+    if(Date.now()-l>interval) document.getElementById('lucky-box-btn').classList.remove('hidden');
+  },60000);
+}
+
+function openLuckyBox() {
+  document.getElementById('lucky-box-btn').classList.add('hidden');
+  document.getElementById('lucky-modal-overlay').classList.remove('hidden');
+  haptic('medium');
+}
+
+function openLuckyReward() {
+  document.getElementById('lucky-modal-overlay').classList.add('hidden');
+  STORE.set(STORE.keys.lastLucky,Date.now());
+  const rewards=[20,30,50,75,100,150];
+  const r=rewards[Math.floor(Math.random()*rewards.length)];
+  addBalance(r,'lucky');
+  showToast(`🎁 লাকি বক্স: +${r}🪙!`,'gold');
+}
+
+// =================== MYSTERY REWARD ===================
+function scheduleMystery() {
+  setInterval(()=>{
+    if(Math.random()<0.15 && STATE.currentPage==='home'){
+      STATE.mysteryAmount=Math.floor(Math.random()*50)+10;
+      document.getElementById('mystery-amount').textContent=`+${STATE.mysteryAmount} কয়েন!`;
+      document.getElementById('mystery-pop').classList.add('show');
+      haptic('light');
+    }
+  },45000);
+}
+
+function claimMystery() {
+  document.getElementById('mystery-pop').classList.remove('show');
+  addBalance(STATE.mysteryAmount,'mystery');
+}
+
+// =================== NOTIFICATIONS ===================
+function scheduleNotifications() {
+  setInterval(()=>{
+    checkSpinReset();
+    if(STATE.spinsLeft===21 && STATE.spinUsed===0) return;
+    if(STATE.spinsLeft>0) showToast('🎰 স্পিন করুন এবং কয়েন উপার্জন করুন!','info');
+  },1800000);
+  setInterval(()=>{ showToast('🎁 ডেইলি রিওয়ার্ড ক্লেইম করতে ভুলবেন শাহ!','info'); },3600000);
+}
+
+// =================== RESULT MODAL ===================
+function showResult(amount, emoji, label) {
+  document.getElementById('result-emoji').textContent=emoji;
+  document.getElementById('result-amount').textContent=amount;
+  document.getElementById('result-label').textContent=label;
+  document.getElementById('result-modal').classList.remove('hidden');
+}
+function hideResult() { document.getElementById('result-modal').classList.add('hidden'); }
+
+// =================== PROFILE MODAL ===================
+function openProfileModal() {
+  haptic('light');
+  document.getElementById('profile-modal-name').textContent=STATE.firstName;
+  document.getElementById('profile-modal-username').textContent=`@${STATE.username}`;
+  document.getElementById('profile-uid').textContent=STATE.userId;
+  document.getElementById('profile-join').textContent=
+    new Date(STORE.get(STORE.keys.joinDate,Date.now())).toLocaleDateString('bn-BD');
+  document.getElementById('profile-total-earned').textContent=STATE.totalEarned.toLocaleString();
+  document.getElementById('profile-ref-count').textContent=STATE.referrals.total;
+  document.getElementById('profile-spins').textContent=STATE.totalSpins;
+  const lvl=VIP_LEVELS.slice().reverse().find(v=>STATE.totalEarned>=v.req)||VIP_LEVELS[0];
+  document.getElementById('profile-vip').textContent=lvl.name;
+  if(STATE.photoUrl){
+    document.getElementById('avatar-emoji').innerHTML=`<img src="${STATE.photoUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+    document.getElementById('profile-avatar-lg').innerHTML=`<img src="${STATE.photoUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+  }
+  document.getElementById('profile-modal-overlay').classList.remove('hidden');
+}
+function closeProfileModal() { document.getElementById('profile-modal-overlay').classList.add('hidden'); }
+
+// =================== ROUTER ===================
+function navigate(page, push=true) {
+  if(STATE.currentPage===page) return;
+  STATE.currentPage=page;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(`page-${page}`).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(`nav-${page}`).classList.add('active');
+  // Move indicator
+  const pages=['home','tasks','referral','wallet'];
+  const idx=pages.indexOf(page);
+  const nav=document.getElementById('bottom-nav');
+  const btnW=nav.offsetWidth/4;
+  document.getElementById('nav-indicator').style.width=`${btnW*0.6}px`;
+  document.getElementById('nav-indicator').style.left=`${btnW*idx + btnW*0.2}px`;
+  if(push) history.pushState({page},'',`#${page}`);
+  haptic('light');
+  // Page init
+  if(page==='tasks') renderTasks();
+  if(page==='referral') initReferral();
+  if(page==='wallet') { updateBalanceUI(); renderWithdrawHistory(); }
+}
+
+window.addEventListener('popstate',(e)=>{
+  const page=e.state?.page||location.hash.replace('#','')||'home';
+  navigate(page,false);
+});
+
+// =================== TOAST ===================
+function showToast(msg, type='info') {
+  const el=document.createElement('div');
+  el.className=`toast ${type}`; el.textContent=msg;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(()=>el.remove(),3000);
+}
+
+// =================== COOLDOWN TIMER ===================
+setInterval(()=>{
+  updateSpinUI();
+  // Update task timers if on task page
+  if(STATE.currentPage==='tasks'){
+    TASKS_CONFIG.forEach(task=>{
+      const btn=document.querySelector(`#task-${task.id} .task-btn`);
+      if(!btn) return;
+      const cdKey=`task_cd_${task.id}`;
+      const cdUntil=taskCooldowns[cdKey]||0;
+      const now=Date.now();
+      if(now<cdUntil){
+        const rem=Math.ceil((cdUntil-now)/1000);
+        btn.textContent=formatTime(rem);
+      } else if(btn.classList.contains('done') && btn.textContent!=='লিমিট'){
+        btn.textContent='GO'; btn.className='task-btn'; btn.disabled=false;
+      }
+    });
+  }
+},1000);
+
+// =================== INIT ===================
+function init() {
+  initTelegram();
+  if(!STORE.get(STORE.keys.joinDate)) STORE.set(STORE.keys.joinDate,Date.now());
+  STATE.achievements=STORE.get(STORE.keys.achievements,{});
+  initBgCanvas();
+  initWheel();
+  checkSpinReset();
+  updateBalanceUI();
+  initDailyReward();
+  renderAchievements();
+  renderVIPRow();
+  checkVIP();
+  scheduleLuckyBox();
+  scheduleMystery();
+  scheduleNotifications();
+  // Hash routing
+  const hash=location.hash.replace('#','')||'home';
+  navigate(hash,false);
+  // Nav indicator init
+  setTimeout(()=>{
+    const nav=document.getElementById('bottom-nav');
+    const btnW=nav.offsetWidth/4;
+    document.getElementById('nav-indicator').style.width=`${btnW*0.6}px`;
+    document.getElementById('nav-indicator').style.left=`${btnW*0.2}px`;
+  },100);
+  // Hide loading
+  setTimeout(()=>{
+    document.getElementById('loading-screen').style.opacity='0';
+    document.getElementById('loading-screen').style.transition='opacity 0.5s';
+    setTimeout(()=>{ document.getElementById('loading-screen').style.display='none'; },500);
+    // Welcome toast
+    setTimeout(()=>showToast(`স্বাগতম ${STATE.firstName}! 🎉 স্পিন করুন এবং কয়েন উপার্জন করুন`,'gold'),800);
+  },1800);
+  // Security checks
+  setInterval(()=>{
+    const st=STORE.get(STORE.keys.spinResetTime,0);
+    if(st && Date.now()>st+5*60*60*1000){ // Extra time passed = reset
+      STORE.set(STORE.keys.spinHistory,[]);
+    }
+  },300000);
+}
+
+window.addEventListener('DOMContentLoaded', init);
+</script>
+
+<!-- Adsterra Popunder / General Ads -->
+<script src="https://pl29476561.effectivecpmnetwork.com/9d/d3/4d/9dd34d292dff2f0de29b72bc0a60873a.js"></script>
+</body>
+</html>
