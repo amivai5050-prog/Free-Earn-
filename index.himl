@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Telegram Earn App</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>Telegram Earn App</h1>
+
+<p id="coins">Coins: 0</p>
+
+<button onclick="addCoin()">
+Claim Reward
+</button>
+
+<script src="app.js"></script>
+
+</body>
+</html>
