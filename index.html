@@ -1,22 +1,87 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <title>RewardVerse</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>RewardVerse</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+body{
+ background:#0f172a;
+ color:white;
+ font-family:sans-serif;
+ text-align:center;
+ padding:30px;
+}
+
+.card{
+ background:#1e293b;
+ padding:20px;
+ border-radius:20px;
+ margin-top:20px;
+}
+</style>
 </head>
+
 <body>
-  <h1>RewardVerse</h1>
-  <p id="user">Loading...</p>
 
-  <script>
-    const tg = window.Telegram.WebApp;
-    tg.ready();
+<h1>RewardVerse</h1>
 
-    const user = tg.initDataUnsafe.user;
+<div class="card">
 
-    document.getElementById("user").innerText =
-      user ? `Hello ${user.first_name}` : "Telegram user not found";
-  </script>
+<h2 id="name">Loading...</h2>
+
+<p id="userid"></p>
+
+<p>Coins: <span id="coins">0</span></p>
+
+<button onclick="dailyCheckin()">
+Daily Check-In
+</button>
+
+</div>
+
+<script>
+
+const tg = window.Telegram.WebApp;
+
+tg.ready();
+
+const user = tg.initDataUnsafe.user;
+
+if(user){
+
+document.getElementById("name").innerText =
+user.first_name;
+
+document.getElementById("userid").innerText =
+"ID: " + user.id;
+
+}
+
+let coins =
+Number(localStorage.getItem("coins")) || 0;
+
+document.getElementById("coins").innerText =
+coins;
+
+function dailyCheckin(){
+
+coins += 10;
+
+localStorage.setItem("coins", coins);
+
+document.getElementById("coins").innerText =
+coins;
+
+alert("10 Coins Added");
+
+}
+
+</script>
+
 </body>
 </html>
